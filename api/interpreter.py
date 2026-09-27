@@ -77,7 +77,7 @@ async def interpret(
     try:
         client = genai.Client(api_key=api_key)
         response = await client.aio.models.generate_content(
-            model=os.getenv("GEMINI_MODEL", "gemini-3.8-flash"),
+            model=os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite"),
             contents=json.dumps(prompt, ensure_ascii=False),
             config=types.GenerateContentConfig(
                 temperature=0,
