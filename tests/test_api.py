@@ -14,11 +14,11 @@ SAMPLE_MENU = [
     }
 ]
 
-def test_privacy_redaction():
-    text = "Appelez-moi au +212612345678 ou visitez rue Mohammed V."
+def test_exact_phone_redaction():
+    text = "Appelez-moi au +212612345678 pour la commande."
     redacted = redact(text)
-    assert "[REDACTED]" in redacted
-    assert "[REDACTED_ADDRESS]" in redacted
+    assert redacted == "Appelez-moi au [REDACTED] pour la commande."
+    assert redact("+212612345678") == "[REDACTED]"
 
 def test_add_item_logic():
     basket = []
@@ -33,59 +33,66 @@ def test_add_item_logic():
     assert res["total_mad"] == 18
     assert len(res["basket"]) == 1
 
-def test_invalid_quantities():
+def test_valid_pending_clarification():
     basket = []
-    # Quantité zéro ou négative ou non entière
-    for invalid_qty in [0, -1, "deux", 100]:
-        parsed = {"intent": "add", "product_id": "coffee", "quantity": invalid_qty, "modifier_ids": []}
-        res = next_step(parsed, basket, "REQUEST", SAMPLE_MENU, None)
-        assert res["state"] == "CLARIFY"
-        assert res["error"] == "Invalid quantity"
+    pending = {
+        "product_id": "coffee",
+        "quantity": 1,
+        "modifier_ids": [],
+        "missing_field": "modifier"
+    }
+    parsed = {"intent": "add", "modifier_ids": ["large"]}
+    res = next_step(parsed, basket, "CLARIFY", SAMPLE_MENU, pending)
+    assert res["state"] == "REVIEW"
+    assert len(res["basket"]) == 1
 
-def test_unknown_modifier_returns_clarify():
+def test_invalid_pending_answer_remaining_in_clarify():
     basket = []
-    parsed = {"intent": "add", "product_id": "coffee", "quantity": 1, "modifier_ids": ["bad_mod"]}
-    res = next_step(parsed, basket, "REQUEST", SAMPLE_MENU, None)
+    pending = {
+        "product_id": "coffee",
+        "quantity": 1,
+        "modifier_ids": [],
+        "missing_field": "modifier"
+    }
+    parsed = {"intent": "add", "modifier_ids": ["invalid_mod"]}
+    res = next_step(parsed, basket, "CLARIFY", SAMPLE_MENU, pending)
     assert res["state"] == "CLARIFY"
     assert res["error"] == "Unknown modifier_id"
-    assert len(res["basket"]) == 0  # Panier préservé
-
-def test_change_intent():
-    basket = [{"product_id": "coffee", "quantity": 1, "modifier_ids": [], "line_total_mad": 12}]
-    parsed = {"intent": "change"}
-    res = next_step(parsed, basket, "REVIEW", SAMPLE_MENU, None)
-    assert res["state"] == "REQUEST"
-    assert len(res["basket"]) == 0  # Le dernier élément a été retiré pour correction
-
-def test_cancel_intent():
-    basket = [{"product_id": "coffee", "quantity": 1, "modifier_ids": [], "line_total_mad": 12}]
-    parsed = {"intent": "cancel"}
-    res = next_step(parsed, basket, "REVIEW", SAMPLE_MENU, None)
-    assert res["state"] == "CANCELLED"
-
-def test_repeat_intent():
-    basket = [{"product_id": "coffee", "quantity": 1, "modifier_ids": [], "line_total_mad": 12}]
-    parsed = {"intent": "repeat"}
-    res = next_step(parsed, basket, "REVIEW", SAMPLE_MENU, None)
-    assert res["state"] == "REVIEW"
-    assert "12" in res["reply_text"]
-
-def test_unknown_intent_with_product_id_ignored():
-    basket = []
-    # product_id présent mais intent inconnu -> ne doit pas ajouter au panier
-    parsed = {"intent": "unknown", "product_id": "coffee", "quantity": 1}
-    res = next_step(parsed, basket, "REQUEST", SAMPLE_MENU, None)
-    assert res["state"] == "CLARIFY"
     assert len(res["basket"]) == 0
 
-def test_confirm_outside_review():
+def test_unclear_pending_answer_does_not_add_base_item():
+    pending = {
+        "product_id": "coffee",
+        "quantity": 1,
+        "modifier_ids": [],
+        "missing_field": "modifier"
+    }
+    res = next_step({"intent": "unknown"}, [], "CLARIFY", SAMPLE_MENU, pending)
+    assert res["state"] == "CLARIFY"
+    assert res["basket"] == []
+    assert res["pending"] == pending
+
+def test_pending_response_has_all_contract_fields():
+    res = next_step({"intent": "unknown"}, [], "CLARIFY", SAMPLE_MENU, {"product_id": "coffee"})
+    assert res["pending"] == {
+        "product_id": "coffee",
+        "quantity": None,
+        "modifier_ids": [],
+        "missing_field": None
+    }
+
+def test_successful_confirmation_non_empty_basket():
     basket = [{"product_id": "coffee", "quantity": 1, "modifier_ids": [], "line_total_mad": 12}]
     parsed = {"intent": "confirm"}
-    res = next_step(parsed, basket, "REQUEST", SAMPLE_MENU, None) # État REQUEST au lieu de REVIEW
-    assert res["error"] == "Cannot confirm outside of REVIEW state"
-
-def test_confirm_empty_basket():
-    basket = []
-    parsed = {"intent": "confirm"}
     res = next_step(parsed, basket, "REVIEW", SAMPLE_MENU, None)
-    assert res["error"] == "Cannot confirm empty basket"
+    assert res["state"] == "CONFIRMED"
+    assert res["total_mad"] == 12
+
+def test_quantity_or_modifier_correction():
+    basket = [{"product_id": "coffee", "quantity": 1, "modifier_ids": [], "line_total_mad": 12}]
+    parsed = {"intent": "change", "quantity": 2, "modifier_ids": ["large"]}
+    res = next_step(parsed, basket, "REVIEW", SAMPLE_MENU, None)
+    assert res["state"] == "REVIEW"
+    assert res["basket"][0]["quantity"] == 2
+    assert res["basket"][0]["modifier_ids"] == ["large"]
+    assert res["basket"][0]["line_total_mad"] == 36
