@@ -2,24 +2,116 @@
 import re
 from api.catalog import CATALOG, get_product_and_restaurant
 from api.interpreter_mock import normalize, explicit_confirmation
-from api.recommendation import MODIFIERS, GENERIC_TERMS, QUANTITIES, recommend_order, _find_mentions, _normalize
+from api.recommendation import MODIFIERS, GENERIC_TERMS, QUANTITIES, recommend_order, _find_mentions, _normalize, _product_aliases, _plural_forms
 from api.storage import search_catalog, conversation_context
 from api.recommendation import spoken_order_lines
 
 def inquiry(text):
     return {'intent':'inquiry', 'suggestion_or_question':text}
 
+def is_item_mentioned(product_id: str, text: str) -> bool:
+    pair = get_product_and_restaurant(product_id)
+    if not pair:
+        return False
+    _, prod = pair
+    norm_text = _normalize(text)
+    aliases = _product_aliases(prod['name'])
+    for alias in aliases:
+        for form in _plural_forms(alias):
+            pattern = r'(?<![a-z0-9])' + re.escape(form).replace(r'\ ', r'\s+') + r'(?![a-z0-9])'
+            if re.search(pattern, norm_text):
+                return True
+def change_order_action(text: str, basket: list) -> dict | None:
+    if not basket:
+        return None
+    s = normalize(text)
+    is_change = bool(re.search(r'\b(?:make (?:that|it)|change (?:(?:the\s+)?(?:order|quantity|item)\s+)?to|change quantity to|instead)\b', s))
+    is_not_spicy = bool(re.search(r'\b(not spicy|no spice|without spice|without spicy)\b', s))
+    mods = explicit_modifiers(text)
+    if is_not_spicy:
+        mods.discard('spicy')
+
+    m = re.search(r'\b(?:make (?:that|it)|change (?:(?:the\s+)?(?:order|quantity|item)\s+)?to|change quantity to)\s+(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b', s) or \
+        re.search(r'\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+instead\b', s)
+    qty = None
+    if m:
+        raw_qty = m.group(1)
+        qty = int(raw_qty) if raw_qty.isdigit() else QUANTITIES.get(raw_qty)
+        if qty and (qty < 1 or qty > 99):
+            qty = None
+
+    if not is_change and not mods and not is_not_spicy:
+        return None
+
+    target_pid = basket[-1]['product_id']
+    for b in basket:
+        if is_item_mentioned(b['product_id'], text):
+            target_pid = b['product_id']
+            break
+    if mods:
+        for b in reversed(basket):
+            pair = get_product_and_restaurant(b['product_id'])
+            if pair:
+                prod_mods = {mod['id'] for mod in pair[1].get('modifiers', [])}
+                if any(mod in prod_mods for mod in mods):
+                    target_pid = b['product_id']
+                    break
+
+    result = {
+        'intent': 'change',
+        'product_id': target_pid,
+        'quantity': qty,
+        'modifier_ids': list(mods),
+    }
+    if is_not_spicy:
+        result['remove_modifier_ids'] = ['spicy']
+    return result
+
 def route(text, basket, pending, restaurant):
     s = normalize(text)
     if explicit_confirmation(text): return {'intent':'confirm'}
+    if re.search(r'\b(ignore (?:all )?(?:your |previous )?(?:instructions|rules)|bypass rules|free food|free order|for free|developer mode|jailbreak|system prompt)\b', s):
+        return inquiry('This is a simulated ordering demo. I cannot give free items or bypass ordering rules. Please tell me an available menu item you would like to order.')
     if re.search(r'\b(dont|do not|never) (cancel|remove|delete)\b',s):
         return inquiry('Your basket is unchanged. Tell me what you would like to do next.')
-    if re.search(r'\b(dont want|do not want|not ordering|not order|dont add|do not add|instead of)\b',s) or re.match(r'^no (coffee|tea|sandwich|pizza|pastilla)\b',s):
+    if re.search(r'\b(dont want|do not want|not ordering|not order|dont add|do not add|instead of)\b',s) or re.match(r'^no (coffee|tea|sandwich|pizza|pastilla|burger|salad|taco|pasta)\b',s):
         return inquiry('I have not added anything. Say remove followed by the item name to remove it, or tell me the item you do want.')
-    if re.search(r'\b(allerg\w*|gluten|nut free|halal|vegan|vegetarian|ingredients)\b', s):
+    if re.search(r'\b(allerg\w*|gluten|nuts?|peanuts?|dairy|lactose|halal|vegan|vegetarian|pork|shellfish|ingredients?|contains?|contain)\b', s):
         return inquiry('I cannot verify ingredients, allergens, or dietary suitability from these sample menus. Please check directly with the restaurant. I have not changed your basket.')
-    if re.search(r'\b(payment|pay|card|address|deliver|delivery|arrive|available now|open now)\b', s):
+    if re.search(r'\b(payment|pay|card|cash|visa|mastercard|apple pay|address|deliver|delivery|arrive|driver|opening hours?|open (?:right )?now|are (?:they|you) open|when do you open|available now)\b', s):
         return inquiry('This is a simulated order. I cannot check live stock, opening hours or delivery, take payment, or send an order. Totals are food subtotals only.')
+
+    food_terms = r'\b(coffee|tea|juice|croissant|sandwich|pastilla|pizza|burger|salad|taco|pasta|briouates|steak|drink|water|menu|order|add|want|give|get|have)\b'
+    if re.search(r'\b(who are you|what is (?:this|clearorder)|what can you do|how does this work)\b', s):
+        return inquiry('I am ClearOrder, your simulated voice ordering assistant. You can tell me what you would like to order across our partner restaurants, ask to hear the menu, or ask for recommendations like hot or cold drinks. Say help to hear the menu.')
+    if re.search(r'^(hello|hi|hey|good morning|good afternoon|good evening)\b', s) and not re.search(food_terms, s):
+        return inquiry('Hello! Welcome to ClearOrder. You can name any dish or drink you want to order, ask about our restaurant menus, or ask for recommendations. What can I get for you?')
+    if re.search(r'^(thank you|thanks|thanks a lot)\b', s) and not re.search(food_terms, s):
+        return inquiry('You are very welcome! Let me know if you would like to add anything else or change your order.')
+    if re.search(r'\b(wait|hold on|give me a (?:second|moment|minute)|let me think|im thinking|just a (?:second|moment|minute))\b', s):
+        return inquiry('Take your time! Whenever you are ready, tell me what you would like to order or change.')
+
+    if re.search(r'\b(?:what|which) (?:drinks|beverages) (?:do you have|are there|can i get)|what can i drink\b', s):
+        return inquiry('For drinks, we have Coffee (12 MAD), Mint tea (14 MAD), Orange juice (13 to 20 MAD), Mineral water (8 MAD), and Black coffee (8 MAD). Would you like a hot drink or a cold drink?')
+    if re.search(r'\bwhat (?:can i get for )?breakfast\b', s):
+        return inquiry('For breakfast, we recommend fresh coffee (12 MAD), mint tea (14 MAD), or orange juice (13 MAD) with a warm croissant (10 MAD) or cheese sandwich (28 MAD). What would you like?')
+    if re.search(r'\b(?:anything sweet|what desserts? (?:do you have|are there)|what is for dessert)\b', s):
+        return inquiry('For something sweet, we have fresh croissants for 10 dirhams and fruit salad for 24 dirhams at ClearOrder Demo Cafe. Would you like to add one?')
+    if re.search(r'\b(?:what is (?:the|your) cheapest|cheapest (?:item|dish|food|drink))\b', s):
+        return inquiry('Our cheapest items are Black coffee and Tea at Green Spoon Cafe, and Mineral water at ClearOrder Demo Cafe, each for 8 dirhams.')
+    if re.search(r'\bwhat (?:food|dishes) (?:do you have|are there)|what can i eat\b', s):
+        return inquiry('We offer sandwiches, burgers, pizzas, tacos, salads, pasta, and Moroccan specialties like fish pastilla and briouates across our partner restaurants. Say menu to hear specific menus, or tell me what you would like.')
+
+    if re.search(r'^(?:can i\s+|i (?:would like|want|d like)\s+to\s+)?(?:(?:add|order|get|have)\s+)?(?:another|an?|more|one more|something)(?:\s+(?:item|dish|drink|thing|else))?$', s) or \
+       re.search(r'^(?:can i\s+|i (?:would like|want|d like)\s+to\s+)?(?:add|order|get|have)\s+(?:an?\s+)?(?:item|dish|drink|thing)$', s) or \
+       s in {'something else', 'anything else'}:
+        return inquiry('What item would you like to add? Please name a dish or drink from the menu.')
+
+    if re.search(r'^(?:can i\s+|i (?:would like|want|d like)\s+to\s+)?(?:change|modify)(?:\s+(?:my\s+|the\s+)?(?:order|item|basket|cart|something))?$', s):
+        if not basket:
+            return inquiry('Your basket is empty. What would you like to order?')
+        return {'intent': 'change', 'product_id': None, 'quantity': None, 'modifier_ids': []}
+
     if s in {'yes','yes please','sure','okay','ok','go ahead','add it','add that','sounds good'}:
         if pending and pending.get('missing_field')=='proposal': return {'intent':'accept_proposal'}
         if pending and pending.get('missing_field') == 'offer':
@@ -27,14 +119,14 @@ def route(text, basket, pending, restaurant):
         return inquiry('Say the item you want to add or change. If you are ready to place this simulated order, say confirm order.')
     if pending and pending.get('missing_field') in {'offer','proposal'} and s in {'no','no thanks','not that','no thank you'}:
         return {'intent':'decline_offer'}
-    if s in {'cancel','cancel order','cancel my order','never mind','nevermind','start over','clear basket','clear my basket'}:
+    if re.search(r'\b(cancel(?: my| the)? order|never mind|nevermind|forget it|start over|reset|clear (?:everything|(?:my |the )?basket|(?:my |the )?cart|all)|empty (?:my |the )?(?:cart|basket)|delete (?:everything|all))\b', s) or s in {'cancel', 'reset', 'clear'}:
         return {'intent':'cancel'}
     if re.search(r'\b(heart rate|heartbreak|heart break)\b',s):
         recent=' '.join(m['content'].lower() for m in conversation_context.get())
         if 'hot drink' in recent or (pending and pending.get('missing_field')=='proposal'):
             return inquiry('I may have misheard hot drink. Please repeat hot drink clearly. Your basket and full proposal are unchanged. Say yes only if you want to add the full proposal, or no to decline it.')
         return inquiry('I may have misheard. Please name a menu item or say menu. Your basket is unchanged.')
-    if re.search(r'\b(hot|warm|cold|cool|chilled) (drink|beverage)s?\b',s):
+    if re.search(r'\b(?:(?:hot|warm|cold|cool|chilled)\s+(?:drink|beverage)s?|(?:something\s+)?(?:hot|warm|cold|cool|chilled)\s+to\s+drink)\b',s):
         if pending and pending.get('missing_field')=='proposal' and pending.get('proposal_items'):
             from api.logic import price_line
             items=[price_line(item) for item in pending['proposal_items']]
@@ -47,8 +139,8 @@ def route(text, basket, pending, restaurant):
             return inquiry('Please use a whole-number quantity between one and 99. Your basket is unchanged.')
         if re.match(r'^(why|what happened|where is)\b',s):
             return inquiry('Category choices are suggestions until you accept them. Say hot drink or cold drink to hear a proposal, or name the dish you prefer. Your basket is unchanged.')
-        expanded=re.sub(r'\b(hot|warm) (drink|beverage)s?\b','coffee',text,flags=re.I)
-        expanded=re.sub(r'\b(cold|cool|chilled) (drink|beverage)s?\b','orange juice',expanded,flags=re.I)
+        expanded=re.sub(r'\b(?:(?:hot|warm)\s+(?:drink|beverage)s?|(?:something\s+)?(?:hot|warm)\s+to\s+drink)\b','coffee',text,flags=re.I)
+        expanded=re.sub(r'\b(?:(?:cold|cool|chilled)\s+(?:drink|beverage)s?|(?:something\s+)?(?:cold|cool|chilled)\s+to\s+drink)\b','orange juice',expanded,flags=re.I)
         selection=recommend_order(expanded,CATALOG,across_restaurants=True)
         if not selection: return inquiry('For a hot drink you can choose coffee or tea. For a cold drink, orange juice or water. What would you prefer?')
         if selection['unmatched_items']:
@@ -56,11 +148,11 @@ def route(text, basket, pending, restaurant):
         return {'intent':'proposal','items':selection['basket'], 'suggestion_or_question':
                 'I suggest coffee for a hot drink and orange juice for a cold drink where requested. '+spoken_order_lines(selection)+
                 ' These are suggestions, not yet added. Say yes to add all these items, or no to decline and choose other items.'}
-    if s in {'repeat','repeat that','say that again','read my order','what did i order','whats in my basket','what is in my basket','what is my total','how much is my order','what is the total'}:
+    if re.search(r'\b(repeat(?: that| the order)?|say that again|read (?:back )?(?:my |the )?order|read that back|what(?: did i| do i have| is in my|s in my) (?:basket|cart|order)|(?:what|how much) is (?:the|my) total|check (?:my )?(?:basket|cart|order)|review (?:my )?(?:basket|cart|order))\b', s):
         return {'intent':'repeat'}
     if pending and pending.get('missing_field')=='proposal':
         return inquiry('Your proposed items are still waiting; I have not added or removed anything. Say yes to add the full proposal, or no to decline it and choose other items.')
-    if re.match(r'^(remove|delete|take off|take out)\b', s):
+    if re.search(r'\b(remove|delete|take off|take out|drop|scratch|get rid of)\b', s):
         if not basket: return inquiry('Your basket is empty. What would you like to order?')
         if re.search(r'\b(last|that|it)\b',s): return {'intent':'remove','product_id':basket[-1]['product_id']}
         choices = search_catalog(text,CATALOG,basket=[])
@@ -68,6 +160,9 @@ def route(text, basket, pending, restaurant):
         matches=[b for b in basket if b['product_id'] in ids]
         if len(matches)==1: return {'intent':'remove','product_id':matches[0]['product_id']}
         return inquiry('Which basket item should I remove? Please say its full name or say remove the last item.')
+    change_action = change_order_action(text, basket)
+    if change_action:
+        return change_action
     if re.search(r'\b(menu|menus|restaurants)\b',s) and not re.search(r'\b(add|order|want|like)\b',s) or s in {'help','what can i order','what do you have','what can i get','what are my options'}:
         selected = next((r for r in CATALOG if normalize(r['name']) in s), None)
         if selected:
@@ -112,6 +207,16 @@ def constrain(parsed,text):
         parsed['remove_modifier_ids']=['spicy']
     if parsed.get('intent')=='change' and not re.search(r'\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\b',normalize(text)):
         parsed['quantity']=None
+    if parsed.get('intent') == 'add':
+        if parsed.get('items'):
+            parsed['items'] = [it for it in parsed['items'] if is_item_mentioned(it.get('product_id'), text)]
+            if not parsed['items'] and not parsed.get('unmatched_items'):
+                parsed['intent'] = 'inquiry'
+                parsed['suggestion_or_question'] = 'What item would you like to add? Please name a dish or drink from the menu.'
+        elif parsed.get('product_id') and not is_item_mentioned(parsed['product_id'], text):
+            parsed['product_id'] = None
+            parsed['intent'] = 'inquiry'
+            parsed['suggestion_or_question'] = 'What item would you like to add? Please name a dish or drink from the menu.'
     for item in [parsed,*parsed.get('items',[])]:
         if 'modifier_ids' in item:
             item['modifier_ids']=[m for m in item['modifier_ids'] if m in allowed]

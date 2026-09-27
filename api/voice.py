@@ -74,6 +74,9 @@ DEEPGRAM_KEYTERMS = [
     'tajine', 'bouskoura', 'pitta', 'mutabel', 'ezme', 'Acili Ezme',
     'Baba Ghanouch', 'carpaccio', 'parmigiana', 'Yony burger', 'dirhams',
     'hot drink', 'cold drink', 'hot beverage', 'cold beverage',
+    'cheeseburger', 'mineral water', 'mint tea', 'fruit salad', 'cheese sandwich',
+    'chicken sandwich', 'margherita pizza', 'seafood pizza', 'caesar salad',
+    'tacos', 'pasta', 'confirm order', 'cancel order', 'repeat order', 'clearorder',
 ]
 
 @router.post('/transcribe')

@@ -36,6 +36,8 @@ CASES = [
  ('categories', ['I would like one hot drink, one cold drink, and I would like something with fish.', 'repeat', 'yes', 'confirm order'],3),
  ('misheard_category', ['one hot drink and one cold drink', "Why didn't you include the heart rate?",'Heartbreak.','yes','confirm order'],2),
  ('decline_categories', ['one coffee','one hot drink and one cold drink','no'],1),
+ ('add_another_flow', ['I would like to order one black coffee and the chicken sandwich.', 'Add another item.', 'Add orange juice.', 'confirm order'], 3),
+ ('generic_change_flow', ['one coffee', 'change', 'make that two', 'confirm order'], 1),
 ]
 
 def run():

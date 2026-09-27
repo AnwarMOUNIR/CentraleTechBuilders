@@ -38,7 +38,36 @@ def search_catalog(text, catalog, basket=(), limit=24):
     aliases = {'bastilla':'pastilla','pastila':'pastilla','pastela':'pastilla','bisteya':'pastilla'}
     terms = [aliases.get(t, t) for t in terms if len(t) > 2]
     terms += [t[:-1] for t in terms if t.endswith('s') and len(t) > 3]
+    category_map = {
+        'drink': ['coffee', 'tea', 'juice', 'water'],
+        'drinks': ['coffee', 'tea', 'juice', 'water'],
+        'beverage': ['coffee', 'tea', 'juice', 'water'],
+        'beverages': ['coffee', 'tea', 'juice', 'water'],
+        'breakfast': ['croissant', 'coffee', 'tea', 'juice'],
+        'dessert': ['croissant', 'fruit'],
+        'desserts': ['croissant', 'fruit'],
+        'sweet': ['croissant', 'fruit'],
+        'burger': ['burger', 'cheeseburger'],
+        'burgers': ['burger', 'cheeseburger'],
+        'taco': ['taco'],
+        'tacos': ['taco'],
+        'salad': ['salad', 'caesar'],
+        'salads': ['salad', 'caesar'],
+        'pasta': ['pasta'],
+        'pizza': ['pizza', 'margherita'],
+        'pizzas': ['pizza', 'margherita'],
+        'fish': ['pastilla', 'seafood', 'fisherman'],
+        'seafood': ['pastilla', 'seafood', 'fisherman'],
+        'chicken': ['chicken', 'pitta'],
+        'beef': ['beef', 'burger', 'steak', 'briouates', 'carpaccio'],
+        'meat': ['beef', 'chicken', 'steak', 'pastilla'],
+        'vegetarian': ['vegetarian', 'margherita', 'cheese', 'salad', 'verdura'],
+    }
+    for word in list(terms):
+        if word in category_map:
+            terms.extend(category_map[word])
     terms = [t for t in terms if t not in {'the','and','want','please','would','like','give','some','have','order','that','this','with','without'}]
+    terms = list(dict.fromkeys(terms))
     with connect() as db:
         key = (db.execute('PRAGMA database_list').fetchone()['file'], id(catalog))
         if key not in _seeded:

@@ -83,7 +83,7 @@ async def catalog():
     return CATALOG
 
 async def recommend(request: RecommendationRequest):
-    if not _use_mock() and os.getenv('USE_VERIFIED_AI','true').lower()=='true':
+    if not _use_mock() and os.getenv('USE_VERIFIED_AI','false').lower()=='true':
         return {'matched':False}  # One model-led dialogue path, not a competing keyword recommender.
     text = redact(request.text)
     if route(text, [], None, CATALOG[0]) is not None: return {'matched':False}
@@ -116,6 +116,24 @@ async def recommend(request: RecommendationRequest):
         'unmatched_items': selection['unmatched_items'],
     }
 
+def is_prose_safe(text: str | None) -> bool:
+    if not text or not isinstance(text, str):
+        return False
+    prose_patterns = [
+        r'<\/?think',
+        r'\b(?:the\s+)?(?:customer|user)\s+(?:is|wants|asked|said)\b',
+        r'\bi\s+(?:should|must|need to|will)\s+(?:respond|clarify|reason|answer)\b',
+        r'\bchain[\s_]of[\s_]thought\b',
+        r'\bsystem\s+prompt\b',
+        r'\blive\s+availability\b',
+        r'\breal\s+order\b',
+        r'\bplace\s+your\s+real\s+order\b',
+    ]
+    for pattern in prose_patterns:
+        if re.search(pattern, text, re.I):
+            return False
+    return True
+
 async def interpret_order(request: InterpretRequest):
     restaurant = get_restaurant(request.restaurant_id)
     if not restaurant: raise HTTPException(400, 'Unknown restaurant')
@@ -124,7 +142,7 @@ async def interpret_order(request: InterpretRequest):
     basket = [b.model_dump() for b in request.basket]
     pending = request.pending.model_dump() if request.pending else None
     state = request.state
-    if not _use_mock() and os.getenv('USE_VERIFIED_AI','true').lower()=='true':
+    if not _use_mock() and os.getenv('USE_VERIFIED_AI','false').lower()=='true':
         from api.order_agent import respond
         try:
             return await asyncio.wait_for(respond(text,basket,state,pending,restaurant['id']),timeout=75)
@@ -158,16 +176,41 @@ async def interpret_order(request: InterpretRequest):
         elif state == 'REVIEW' and is_negative_confirmation:
             parsed = {'intent': 'cancel'}
         else:
-            try:
-                parsed = await asyncio.wait_for((mock_interpret if _use_mock() else real_interpret)(
-                    text, menu, basket, state, pending), timeout=30)
-                if parsed.get('intent') == 'inquiry':
-                    # Model prose is not an approved spoken response. Only application
-                    # templates may make claims or ask actionable questions.
-                    parsed = {'intent':'inquiry', 'suggestion_or_question':
-                        'I may have misunderstood. Please name a dish, say hot drink or cold drink, or ask for the menu. Your basket is unchanged.'}
-            except (Exception, asyncio.TimeoutError):
-                parsed = {'intent': 'unknown'}
+            s_norm = normalize(text)
+            direct_add = None
+            is_addition_phrase = bool(
+                re.search(r'\b(add|also|and|plus|another|one more|get me|give me|bring me)\b', s_norm) or
+                re.match(r'^(?:one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+', s_norm)
+            )
+            is_change_phrase = bool(re.search(r'\b(change|make that|instead|actually|remove|delete|replace|without|no sugar|extra)\b', s_norm))
+            if state == 'REVIEW' and not pending and is_addition_phrase and not is_change_phrase:
+                matched_cand = recommend_from_catalog(text, [restaurant])
+                if not (matched_cand and matched_cand['basket'] and not matched_cand.get('unmatched_items')):
+                    matched_cand = recommend_from_catalog(text, CATALOG, across_restaurants=True)
+                if matched_cand and matched_cand['basket'] and not matched_cand.get('unmatched_items'):
+                    direct_add = {
+                        'intent': 'add',
+                        'restaurant_id': matched_cand['restaurant']['id'],
+                        'items': matched_cand['basket'],
+                        'product_id': matched_cand['basket'][0]['product_id'],
+                        'quantity': matched_cand['basket'][0]['quantity'],
+                        'modifier_ids': matched_cand['basket'][0]['modifier_ids'],
+                        'unmatched_items': [],
+                        'missing_field': None,
+                    }
+            if direct_add is not None:
+                parsed = direct_add
+            else:
+                try:
+                    parsed = await asyncio.wait_for((mock_interpret if _use_mock() else real_interpret)(
+                        text, menu, basket, state, pending), timeout=30)
+                    if parsed.get('intent') == 'inquiry':
+                        # Model prose is not an approved spoken response. Only application
+                        # templates may make claims or ask actionable questions.
+                        parsed = {'intent':'inquiry', 'suggestion_or_question':
+                            'I may have misunderstood. Please name a dish, say hot drink or cold drink, or ask for the menu. Your basket is unchanged.'}
+                except (Exception, asyncio.TimeoutError):
+                    parsed = {'intent': 'unknown'}
         parsed = constrain(parsed,text) if parsed.get('intent') not in {'accept_offer'} else parsed
         if parsed.get('intent') == 'confirm' and not explicit_confirmation(text):
             parsed = {'intent': 'inquiry', 'suggestion_or_question': 'Your order is still a proposal. Say confirm order when you are ready, or tell me what to change.'}

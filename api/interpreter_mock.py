@@ -2,13 +2,25 @@
 import re
 
 UNKNOWN = dict(intent='unknown', product_id=None, quantity=None, modifier_ids=[], missing_field=None)
-CONFIRM_PHRASES = {'confirm', 'confirm order', 'confirm my order', 'yes confirm', 'yes confirm order', 'place order', 'place my order'}
+CONFIRM_PHRASES = {
+    'confirm', 'confirm order', 'confirm my order', 'confirm the order', 'confirm this order',
+    'yes confirm', 'yes confirm order', 'yes please confirm', 'please confirm', 'please confirm order',
+    'please confirm the order', 'i confirm', 'i confirm my order', 'i confirm the order',
+    'place order', 'place my order', 'place the order', 'please place order', 'please place the order',
+}
 
 def normalize(text):
     return re.sub(r'[^a-z0-9\s]', '', text.casefold()).strip()
 
 def explicit_confirmation(text):
-    return normalize(text) in CONFIRM_PHRASES
+    s = normalize(text)
+    if s in CONFIRM_PHRASES:
+        return True
+    if re.search(r'\b(dont|do not|never|no|not)\b', s):
+        return False
+    cleaned = re.sub(r'^(?:please\s+|yes\s+please\s+|yes\s+|i\s+)', '', s).strip()
+    cleaned = re.sub(r'\b(?:the|this|my)\s+order\b', 'order', cleaned)
+    return cleaned in {'confirm', 'confirm order', 'place order'}
 
 async def interpret(text, menu, basket, state, pending):
     s = normalize(text)

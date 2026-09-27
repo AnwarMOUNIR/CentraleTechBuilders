@@ -32,9 +32,9 @@ class ModelSelection(BaseModel):
     unmatched_items: list[str] = Field(default_factory=list, max_length=20)
 
 GENERIC_TERMS = {
-    'burger', 'coffee', 'croissant', 'fish', 'juice', 'meal', 'pasta', 'pastilla',
-    'pizza', 'pitta', 'salad', 'sandwich', 'steak', 'taco', 'tea', 'water',
-    'briouates', 'carpaccio', 'parmigiana', 'sticks', 'mezze',
+    'burger', 'cheeseburger', 'coffee', 'croissant', 'fish', 'juice', 'meal', 'pasta', 'pastilla',
+    'pizza', 'pitta', 'salad', 'sandwich', 'steak', 'taco', 'tacos', 'tea', 'water',
+    'briouates', 'carpaccio', 'parmigiana', 'sticks', 'mezze', 'chicken', 'beef',
 }
 QUANTITIES = {
     'a': 1, 'an': 1, 'one': 1, 'two': 2, 'three': 3, 'four': 4,
@@ -156,9 +156,23 @@ def _plural_forms(alias: str) -> set[str]:
 
 
 def _product_aliases(name: str) -> set[str]:
-    words = _normalize(name).split()
-    aliases = {' '.join(words)}
+    normalized_name = _normalize(name)
+    words = normalized_name.split()
+    aliases = {normalized_name}
     aliases.update(word for word in words if word in GENERIC_TERMS)
+    for suffix in [' with fries', ' with fries soda and dessert', ' with soda and dessert']:
+        if suffix in normalized_name:
+            aliases.add(normalized_name.replace(suffix, '').strip())
+    if 'cheeseburger' in normalized_name:
+        aliases.update(['cheeseburger', 'burger'])
+    if 'chicken caesar salad' in normalized_name:
+        aliases.update(['caesar salad', 'caesar'])
+    if 'minced beef sandwich' in normalized_name:
+        aliases.add('beef sandwich')
+    if 'breaded chicken sandwich' in normalized_name:
+        aliases.add('chicken sandwich')
+    if 'chicken nugget taco' in normalized_name:
+        aliases.update(['chicken taco', 'chicken tacos'])
     return aliases
 
 

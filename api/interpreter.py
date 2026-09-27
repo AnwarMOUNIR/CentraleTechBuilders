@@ -98,13 +98,16 @@ async def interpret(
         'Rules:\n'
         '1. If the customer is ordering items (casual, messy, conversational, or multi-item): action="order". '
         'Set restaurant_id to the restaurant that offers the requested items. Fit each item using exact product_id, quantity, and valid modifier_ids. '
-        'Put requested items not on any menu into unmatched_items.\n'
+        'Put requested items not on any menu into unmatched_items. '
+        'IMPORTANT: When the customer is adding items to an existing basket, return ONLY the new items requested in this turn. '
+        'NEVER include or repeat items already in the basket unless the customer explicitly asked for more of them in their latest message.\n'
         '2. If the customer asks what is available at other restaurants, what restaurants exist, or is exploring preferences: action="inquiry". '
         'In suggestion_or_question, you MUST write a helpful, natural-speech summary of what other restaurants offer based on the catalog (e.g. Lilac Kitchen for burgers and tacos, Cornerstone Grill for sandwiches and pastilla, Little Olive Kitchen for salads, Cedar Spice House for mezze, Orange Grove Kitchen for seafood pizza, Demo Cafe for coffee and croissants).\n'
         '3. If changing items: action="change".\n'
         '4. If confirming: action="confirm".\n'
         '5. If cancelling: action="cancel".\n'
         '6. If repeating order: action="repeat".\n'
+        '7. If the customer says "add another item", "add more", "another item", or says "change" without naming a specific dish: action="inquiry", suggestion_or_question="What item would you like to add?"\n'
         'Retrieved Restaurant Catalog:\n' + json.dumps(catalog_desc, ensure_ascii=False)
         + '\nCurrent order context: ' + json.dumps({'basket':basket,'state':state,'pending':pending})
     )
@@ -152,6 +155,10 @@ async def interpret(
                     valid_mods = {m['id'] for m in products[item.product_id].get('modifiers', [])}
                     filtered_mods = [m for m in item.modifier_ids if m in valid_mods]
                     valid_items.append({'product_id': item.product_id, 'quantity': item.quantity or 1, 'modifier_ids': filtered_mods})
+            if basket:
+                from api.dialogue import is_item_mentioned
+                existing_pids = {b['product_id'] for b in basket}
+                valid_items = [it for it in valid_items if it['product_id'] not in existing_pids or is_item_mentioned(it['product_id'], text)]
             if not valid_items and not reasoning.unmatched_items:
                 return _unknown()
             return {

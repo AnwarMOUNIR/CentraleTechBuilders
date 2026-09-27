@@ -144,7 +144,13 @@ def next_step(parsed, basket, state, menu, pending=None):
                 continue
             try:
                 line = price_line(it, menu)
-                lines.append(line)
+                existing = next((l for l in lines if l['product_id'] == line['product_id'] and sorted(l['modifier_ids']) == sorted(line['modifier_ids'])), None)
+                if existing:
+                    existing['quantity'] += line['quantity']
+                    updated = price_line(existing, menu)
+                    existing['line_total_mad'] = updated['line_total_mad']
+                else:
+                    lines.append(line)
                 added_lines.append(line)
             except (ValueError, TypeError, KeyError):
                 continue
@@ -211,5 +217,11 @@ def next_step(parsed, basket, state, menu, pending=None):
     else:
         if len(lines)>=20:
             return clarify('Basket limit',question='This demo supports up to 20 basket lines. Please remove an item first.')
-        lines.append(line)
+        existing = next((l for l in lines if l['product_id'] == line['product_id'] and sorted(l['modifier_ids']) == sorted(line['modifier_ids'])), None)
+        if existing:
+            existing['quantity'] += line['quantity']
+            updated = price_line(existing, menu)
+            existing['line_total_mad'] = updated['line_total_mad']
+        else:
+            lines.append(line)
     return response('REVIEW', summary(lines, menu) + ' Say confirm order, change, add another item, or cancel.', next_pending=None)
