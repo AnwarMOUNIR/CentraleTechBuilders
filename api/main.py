@@ -112,7 +112,36 @@ async def health() -> dict:
 
 @app.post("/interpret", response_model=InterpretResponse)
 async def interpret_order(request: InterpretRequest) -> dict:
-    # Mock-first by design. The integration lead will replace the non-mock path
-    # with redact -> interpret -> next_step once all three modules are merged.
-    return _fixture_response(request)
-
+    # 1. Redact sensitive info
+    redacted_text = redact(request.text)
+    
+    # Convert Pydantic models to standard dictionaries
+    basket_dicts = [b.model_dump() for b in request.basket]
+    pending_dict = request.pending.model_dump() if request.pending else None
+    
+    # 2. Extract intent using the mock or real AI
+    if _use_mock():
+        parsed_intent = await mock_interpret(
+            text=redacted_text, 
+            menu=MENU, 
+            basket=basket_dicts, 
+            state=request.state, 
+            pending=pending_dict
+        )
+    else:
+        parsed_intent = await real_interpret(
+            text=redacted_text, 
+            menu=MENU, 
+            basket=basket_dicts, 
+            state=request.state, 
+            pending=pending_dict
+        )
+        
+    # 3. Apply business logic and calculate total
+    return next_step(
+        parsed=parsed_intent,
+        basket=basket_dicts,
+        state=request.state,
+        menu=MENU,
+        pending=pending_dict
+    )
