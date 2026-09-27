@@ -8,7 +8,7 @@ const state = {
 const byId = (id) => document.getElementById(id);
 
 let speech = {
-  listen: async () => { throw new Error("La reconnaissance vocale n'est pas encore disponible."); },
+  listen: async () => { throw new Error("Speech recognition is not available yet. Please type your order."); },
   speak: () => {},
   stopSpeaking: () => {},
   speechAvailable: () => ({ listen: false, speak: false }),
@@ -50,23 +50,23 @@ function render(result) {
       basket.append(item);
     }
     const total = document.createElement("li");
-    total.textContent = `Total : ${result.total_mad} MAD`;
+    total.textContent = `Total: ${result.total_mad} MAD`;
     total.className = "basket-total";
     basket.append(total);
   }
 
-  setStatus(result.error || `État : ${result.state}`);
+  setStatus(result.error || `Status: ${result.state}`);
   speech.speak(result.reply_text);
 }
 
 async function submit(text) {
   const cleanText = text.trim();
   if (!cleanText) {
-    setStatus("Saisissez ou dictez une demande.");
+    setStatus("Type or speak an order.");
     return;
   }
 
-  setStatus("Traitement en cours…");
+  setStatus("Processing…");
   try {
     const response = await fetch("/interpret", {
       method: "POST",
@@ -78,10 +78,10 @@ async function submit(text) {
         pending: state.pending,
       }),
     });
-    if (!response.ok) throw new Error(`Erreur API ${response.status}`);
+    if (!response.ok) throw new Error(`API error ${response.status}`);
     render(await response.json());
   } catch (error) {
-    setStatus(`Impossible de contacter le service : ${error.message}`);
+    setStatus(`Unable to contact the service: ${error.message}`);
   }
 }
 
@@ -92,7 +92,7 @@ function bindEvents() {
     if (event.key === "Enter") submit(input.value);
   });
   byId("listen-button")?.addEventListener("click", async () => {
-    setStatus("Écoute en cours…");
+    setStatus("Listening…");
     try {
       const transcript = await speech.listen();
       if (input) input.value = transcript;
@@ -102,12 +102,12 @@ function bindEvents() {
     }
   });
   byId("repeat-button")?.addEventListener("click", () => speech.speak(state.lastReply));
-  byId("confirm-button")?.addEventListener("click", () => submit("confirmer"));
+  byId("confirm-button")?.addEventListener("click", () => submit("confirm"));
   byId("change-button")?.addEventListener("click", () => {
     input?.focus();
-    setStatus("Décrivez la modification souhaitée.");
+    setStatus("Describe the change you want.");
   });
-  byId("cancel-button")?.addEventListener("click", () => submit("annuler"));
+  byId("cancel-button")?.addEventListener("click", () => submit("cancel"));
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

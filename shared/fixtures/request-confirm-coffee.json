@@ -1,5 +1,5 @@
 {
-  "text": "Confirmer",
+  "text": "confirm",
   "basket": [
     {"product_id": "coffee", "quantity": 1, "modifier_ids": ["large", "no_sugar"], "line_total_mad": 18}
   ],

@@ -1,38 +1,38 @@
 [
   {
     "id": "coffee",
-    "name": "Café",
+    "name": "Coffee",
     "base_price_mad": 12,
     "modifiers": [
-      {"id": "small", "label": "Petit", "delta_mad": 0},
-      {"id": "large", "label": "Grand", "delta_mad": 6},
-      {"id": "no_sugar", "label": "Sans sucre", "delta_mad": 0},
-      {"id": "extra_sugar", "label": "Sucre supplémentaire", "delta_mad": 0}
+      {"id": "small", "label": "Small", "delta_mad": 0},
+      {"id": "large", "label": "Large", "delta_mad": 6},
+      {"id": "no_sugar", "label": "No sugar", "delta_mad": 0},
+      {"id": "extra_sugar", "label": "Extra sugar", "delta_mad": 0}
     ]
   },
   {
     "id": "mint_tea",
-    "name": "Thé à la menthe",
+    "name": "Mint tea",
     "base_price_mad": 14,
     "modifiers": [
-      {"id": "no_sugar", "label": "Sans sucre", "delta_mad": 0},
-      {"id": "extra_mint", "label": "Menthe supplémentaire", "delta_mad": 2}
+      {"id": "no_sugar", "label": "No sugar", "delta_mad": 0},
+      {"id": "extra_mint", "label": "Extra mint", "delta_mad": 2}
     ]
   },
   {
     "id": "orange_juice",
-    "name": "Jus d'orange",
+    "name": "Orange juice",
     "base_price_mad": 20,
     "modifiers": [
-      {"id": "no_ice", "label": "Sans glaçons", "delta_mad": 0}
+      {"id": "no_ice", "label": "No ice", "delta_mad": 0}
     ]
   },
   {
     "id": "water",
-    "name": "Eau minérale",
+    "name": "Mineral water",
     "base_price_mad": 8,
     "modifiers": [
-      {"id": "sparkling", "label": "Gazeuse", "delta_mad": 2}
+      {"id": "sparkling", "label": "Sparkling", "delta_mad": 2}
     ]
   },
   {
@@ -43,28 +43,28 @@
   },
   {
     "id": "cheese_sandwich",
-    "name": "Sandwich au fromage",
+    "name": "Cheese sandwich",
     "base_price_mad": 28,
     "modifiers": [
-      {"id": "no_tomato", "label": "Sans tomate", "delta_mad": 0},
-      {"id": "extra_cheese", "label": "Fromage supplémentaire", "delta_mad": 5}
+      {"id": "no_tomato", "label": "No tomato", "delta_mad": 0},
+      {"id": "extra_cheese", "label": "Extra cheese", "delta_mad": 5}
     ]
   },
   {
     "id": "chicken_sandwich",
-    "name": "Sandwich au poulet",
+    "name": "Chicken sandwich",
     "base_price_mad": 35,
     "modifiers": [
-      {"id": "no_tomato", "label": "Sans tomate", "delta_mad": 0},
-      {"id": "spicy", "label": "Épicé", "delta_mad": 0}
+      {"id": "no_tomato", "label": "No tomato", "delta_mad": 0},
+      {"id": "spicy", "label": "Spicy", "delta_mad": 0}
     ]
   },
   {
     "id": "fruit_salad",
-    "name": "Salade de fruits",
+    "name": "Fruit salad",
     "base_price_mad": 24,
     "modifiers": [
-      {"id": "no_honey", "label": "Sans miel", "delta_mad": 0}
+      {"id": "no_honey", "label": "No honey", "delta_mad": 0}
     ]
   }
 ]
