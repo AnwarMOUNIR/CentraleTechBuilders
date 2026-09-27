@@ -2,13 +2,15 @@
 
 Version: `1.0` — changes require review by the integration lead and affected file owner.
 
+The application language is English. Product and modifier IDs are language-neutral and remain stable.
+
 ## HTTP endpoint
 
 `POST /interpret` accepts JSON:
 
 ```json
 {
-  "text": "Un café grand sans sucre",
+  "text": "One large coffee without sugar",
   "basket": [],
   "state": "REQUEST",
   "pending": null
@@ -25,7 +27,7 @@ The response is always a complete next state:
 ```json
 {
   "state": "REVIEW",
-  "reply_text": "Un grand café sans sucre, 18 dirhams. Confirmer, modifier ou annuler ?",
+  "reply_text": "One large coffee without sugar, 18 dirhams. Confirm, change, or cancel?",
   "basket": [
     {
       "product_id": "coffee",

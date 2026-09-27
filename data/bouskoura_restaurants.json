@@ -1,0 +1,258 @@
+{
+  "schema_version": "1.0",
+  "dataset_id": "bouskoura_restaurant_seed_2026_09_27",
+  "generated_at": "2026-09-27",
+  "locale": "fr-MA",
+  "currency": "MAD",
+  "service_area": {
+    "city": "Bouskoura",
+    "region": "Casablanca-Settat",
+    "country": "Morocco"
+  },
+  "usage": "Demo and prototyping seed data only. Verify restaurant availability, prices, fees and delivery estimates with the provider before any real use.",
+  "delivery_time_policy": "Delivery estimates are point-in-time platform observations and depend on the exact address, restaurant status, demand and traffic. null means the public listing did not expose an estimate without a delivery address.",
+  "restaurants": [
+    {
+      "id": "lilas_food_bouskoura",
+      "name": "LILAS FOOD",
+      "area": "Bouskoura",
+      "cuisines": ["burger", "pizza", "pasta", "sandwich", "tacos", "juice"],
+      "ordering_channel": "Yassir Food",
+      "rating": {"value": 4.0, "scale": 5, "observed_at": "2026-09-27"},
+      "delivery": {
+        "available": true,
+        "estimate_min_minutes": 20,
+        "estimate_max_minutes": 30,
+        "fee_mad": 0,
+        "address_required_for_final_quote": true,
+        "observed_at": "2026-09-27"
+      },
+      "availability_note": "Listing was shown as closed and opening at 13:00 when observed.",
+      "source": {
+        "url": "https://delivery.yassir.com/restaurants/66c3402fbb64f181d26f16b9/LILAS-FOOD",
+        "provider": "Yassir Food",
+        "observed_at": "2026-09-27"
+      },
+      "menu": [
+        {"id": "lilas_menu_burger", "name": "Menu Burger + soda + dessert", "category": "formules", "price_mad": 49, "available_when_observed": true},
+        {"id": "lilas_menu_tacos", "name": "Menu Tacos + frites + soda + dessert", "category": "formules", "price_mad": 49, "available_when_observed": true},
+        {"id": "lilas_salade_marocaine", "name": "Salade marocaine", "category": "salades", "price_mad": 23, "available_when_observed": true},
+        {"id": "lilas_tacos_poulet", "name": "Tacos nugget poulet", "category": "tacos", "price_mad": 35, "available_when_observed": true},
+        {"id": "lilas_pizza_margarita", "name": "Pizza Margarita", "category": "pizzas", "price_mad": 30, "available_when_observed": true},
+        {"id": "lilas_pizza_vegetarienne", "name": "Pizza végétarienne", "category": "pizzas", "price_mad": 35, "available_when_observed": true}
+      ],
+      "sample_orders": [
+        {
+          "id": "lilas_sample_1",
+          "items": [{"menu_item_id": "lilas_menu_burger", "quantity": 1}],
+          "subtotal_mad": 49,
+          "delivery_fee_mad": 0,
+          "estimated_total_mad": 49
+        }
+      ]
+    },
+    {
+      "id": "lecheria_bouskoura",
+      "name": "Lecheria Bouskoura",
+      "area": "Bouskoura et Ville Verte",
+      "cuisines": ["moroccan", "burger", "pizza", "pasta", "tacos", "cafe"],
+      "ordering_channel": "Restaurant digital menu",
+      "rating": null,
+      "delivery": {
+        "available": true,
+        "estimate_min_minutes": null,
+        "estimate_max_minutes": null,
+        "fee_mad": null,
+        "address_required_for_final_quote": true,
+        "observed_at": "2026-09-27"
+      },
+      "availability_note": "The menu states delivery in Bouskoura and Ville Verte; no public time or fee was displayed.",
+      "source": {
+        "url": "https://www.digitalmenu.ma/menu/MTE3",
+        "provider": "DigitalMenu.ma",
+        "observed_at": "2026-09-27"
+      },
+      "menu": [
+        {"id": "lecheria_coffee", "name": "Café noir", "category": "boissons", "price_mad": 8, "available_when_observed": true},
+        {"id": "lecheria_mint_tea", "name": "Thé", "category": "boissons", "price_mad": 8, "available_when_observed": true},
+        {"id": "lecheria_cheese_burger", "name": "Cheese burger avec frites", "category": "burgers", "price_mad": 38, "available_when_observed": true},
+        {"id": "lecheria_pizza_margherita", "name": "Pizza Margherita", "category": "pizzas", "price_mad": 25, "available_when_observed": true},
+        {"id": "lecheria_pasta_chicken", "name": "Pâtes poulet aux champignons", "category": "pâtes", "price_mad": 32, "available_when_observed": true},
+        {"id": "lecheria_orange_juice", "name": "Jus d'orange", "category": "boissons", "price_mad": 13, "available_when_observed": true}
+      ],
+      "sample_orders": [
+        {
+          "id": "lecheria_sample_1",
+          "items": [
+            {"menu_item_id": "lecheria_cheese_burger", "quantity": 1},
+            {"menu_item_id": "lecheria_orange_juice", "quantity": 1}
+          ],
+          "subtotal_mad": 51,
+          "delivery_fee_mad": null,
+          "estimated_total_mad": null
+        }
+      ]
+    },
+    {
+      "id": "la_grignotiere_bouskoura",
+      "name": "La Grignotière By La Grillardière",
+      "area": "Bouskoura",
+      "cuisines": ["sandwich", "moroccan", "grill", "bakery", "juice"],
+      "ordering_channel": "Glovo",
+      "rating": {"value": 98, "scale": 100, "observed_at": "2026-09-27"},
+      "delivery": {
+        "available": true,
+        "estimate_min_minutes": null,
+        "estimate_max_minutes": null,
+        "fee_mad": 2,
+        "address_required_for_final_quote": true,
+        "observed_at": "2026-09-27"
+      },
+      "availability_note": "Glovo requires a delivery address to display a current delivery-time estimate.",
+      "source": {
+        "url": "https://glovoapp.com/fr/ma/bouskoura/stores/la-grignotiere-bsr",
+        "provider": "Glovo",
+        "observed_at": "2026-09-27"
+      },
+      "menu": [
+        {"id": "grignotiere_croustwich_kefta", "name": "Croust'wich viande hachée", "category": "sandwichs", "price_mad": 55, "available_when_observed": true},
+        {"id": "grignotiere_croustwich_poulet", "name": "Croust'wich poulet pané", "category": "sandwichs", "price_mad": 55, "available_when_observed": true},
+        {"id": "grignotiere_pastilla_poisson", "name": "Pastilla poisson", "category": "salés", "price_mad": 55, "available_when_observed": true},
+        {"id": "grignotiere_briouates_kefta", "name": "Briouates kefta", "category": "salés", "price_mad": 28, "available_when_observed": true},
+        {"id": "grignotiere_steak_hache", "name": "Steak haché", "category": "plats grillés", "price_mad": 117, "available_when_observed": true},
+        {"id": "grignotiere_orange_juice", "name": "Jus d'orange", "category": "jus", "price_mad": 28, "available_when_observed": true}
+      ],
+      "sample_orders": [
+        {
+          "id": "grignotiere_sample_1",
+          "items": [
+            {"menu_item_id": "grignotiere_croustwich_poulet", "quantity": 1},
+            {"menu_item_id": "grignotiere_orange_juice", "quantity": 1}
+          ],
+          "subtotal_mad": 83,
+          "delivery_fee_mad": 2,
+          "estimated_total_mad": 85
+        }
+      ]
+    },
+    {
+      "id": "le_petit_italien_bouskoura",
+      "name": "Le petit Italien Bouskoura",
+      "area": "Bouskoura",
+      "cuisines": ["italian", "pizza", "salad", "chicken", "juice"],
+      "ordering_channel": "Yassir Food",
+      "rating": {"value": 4.0, "scale": 5, "observed_at": "2026-09-27"},
+      "delivery": {
+        "available": true,
+        "estimate_min_minutes": 20,
+        "estimate_max_minutes": 30,
+        "fee_mad": 0,
+        "address_required_for_final_quote": true,
+        "observed_at": "2026-09-27"
+      },
+      "availability_note": "Listing was shown as closed when observed.",
+      "source": {
+        "url": "https://delivery.yassir.com/fr/restaurants/68bd91c4cc16019081891598/Le-petit-Italien-Bouskoura",
+        "provider": "Yassir Food",
+        "observed_at": "2026-09-27"
+      },
+      "menu": [
+        {"id": "petit_italien_parmigiana", "name": "Aubergines gratinées à la parmigiana", "category": "entrées", "price_mad": 79, "available_when_observed": true},
+        {"id": "petit_italien_house_salad", "name": "Salade du Petit Italien", "category": "salades", "price_mad": 85, "available_when_observed": true},
+        {"id": "petit_italien_mozza_sticks", "name": "Mozza sticks", "category": "entrées", "price_mad": 60, "available_when_observed": true},
+        {"id": "petit_italien_beef_carpaccio", "name": "Carpaccio de bœuf", "category": "entrées", "price_mad": 85, "available_when_observed": true},
+        {"id": "petit_italien_caesar_chicken", "name": "Salade César poulet", "category": "salades", "price_mad": 79, "available_when_observed": true},
+        {"id": "petit_italien_verdura", "name": "Salade Verdura", "category": "salades", "price_mad": 67, "available_when_observed": true}
+      ],
+      "sample_orders": [
+        {
+          "id": "petit_italien_sample_1",
+          "items": [{"menu_item_id": "petit_italien_parmigiana", "quantity": 1}],
+          "subtotal_mad": 79,
+          "delivery_fee_mad": 0,
+          "estimated_total_mad": 79
+        }
+      ]
+    },
+    {
+      "id": "baba_turc_bouskoura",
+      "name": "Baba Turc Bouskoura",
+      "area": "One Hill, Promenade du Golf, Bouskoura",
+      "cuisines": ["turkish", "steakhouse", "mezze"],
+      "ordering_channel": "Restaurant website",
+      "rating": null,
+      "delivery": {
+        "available": null,
+        "estimate_min_minutes": null,
+        "estimate_max_minutes": null,
+        "fee_mad": null,
+        "address_required_for_final_quote": true,
+        "observed_at": "2026-09-27"
+      },
+      "availability_note": "Official site showed daily opening hours of 12:00–23:30; delivery details were not displayed in the public page extract.",
+      "source": {
+        "url": "https://bouskoura.babaturc.ma/",
+        "provider": "Baba Turc official site",
+        "observed_at": "2026-09-27"
+      },
+      "menu": [
+        {"id": "baba_turc_baba_ghanouch", "name": "Baba Ghanouch", "category": "mezzés", "price_mad": 35, "available_when_observed": true},
+        {"id": "baba_turc_acili_ezme", "name": "Acili Ezme", "category": "mezzés", "price_mad": 35, "available_when_observed": true},
+        {"id": "baba_turc_mutabel", "name": "Mutabel", "category": "mezzés", "price_mad": 35, "available_when_observed": true},
+        {"id": "baba_turc_atom", "name": "Atom", "category": "mezzés", "price_mad": 35, "available_when_observed": true}
+      ],
+      "sample_orders": [
+        {
+          "id": "baba_turc_sample_1",
+          "items": [
+            {"menu_item_id": "baba_turc_baba_ghanouch", "quantity": 1},
+            {"menu_item_id": "baba_turc_mutabel", "quantity": 1}
+          ],
+          "subtotal_mad": 70,
+          "delivery_fee_mad": null,
+          "estimated_total_mad": null
+        }
+      ]
+    },
+    {
+      "id": "yony_bouskoura",
+      "name": "YONY by Yo Ti Tam",
+      "area": "Bouskoura",
+      "cuisines": ["pizza", "burger", "sandwich", "salad", "juice"],
+      "ordering_channel": "Glovo",
+      "rating": {"value": 96, "scale": 100, "observed_at": "2026-09-27"},
+      "delivery": {
+        "available": true,
+        "estimate_min_minutes": null,
+        "estimate_max_minutes": null,
+        "fee_mad": 8,
+        "address_required_for_final_quote": true,
+        "observed_at": "2026-09-27"
+      },
+      "availability_note": "Glovo requires a delivery address for a current delivery-time estimate. Promotional prices can change.",
+      "source": {
+        "url": "https://glovoapp.com/fr/ma/bouskoura/stores/yony-bsr",
+        "provider": "Glovo",
+        "observed_at": "2026-09-27"
+      },
+      "menu": [
+        {"id": "yony_chicken_pitta_menu", "name": "Menu Solo Chicken Pitta", "category": "formules", "price_mad": 106.4, "regular_price_mad": 133, "promotional": true, "available_when_observed": true},
+        {"id": "yony_burger", "name": "Yony Burger", "category": "burgers", "price_mad": 95.2, "regular_price_mad": 119, "promotional": true, "available_when_observed": true},
+        {"id": "yony_seafood_pizza", "name": "Pizza fruits de mer", "category": "pizzas", "price_mad": 109, "available_when_observed": true},
+        {"id": "yony_double_cheese", "name": "Double Cheese Burger", "category": "burgers", "price_mad": 109, "available_when_observed": true},
+        {"id": "yony_caesar_chicken", "name": "Salade César poulet", "category": "salades", "price_mad": 95, "available_when_observed": true},
+        {"id": "yony_fisherman_salad", "name": "Salade Pêcheur", "category": "salades", "price_mad": 109, "available_when_observed": true}
+      ],
+      "sample_orders": [
+        {
+          "id": "yony_sample_1",
+          "items": [{"menu_item_id": "yony_burger", "quantity": 1}],
+          "subtotal_mad": 95.2,
+          "delivery_fee_mad": 8,
+          "estimated_total_mad": 103.2,
+          "price_note": "Uses the promotional price observed on 2026-09-27."
+        }
+      ]
+    }
+  ]
+}

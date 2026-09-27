@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#184d3e" />
+    <meta name="description" content="Order by voice or text, review your basket, and confirm a simulated café order." />
+    <title>ClearOrder — Order your way</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#request-text">Skip to ordering</a>
+
+    <header class="site-header page-width">
+      <a class="brand" href="./" aria-label="ClearOrder home">
+        <svg class="brand-icon" viewBox="0 0 40 40" fill="none" aria-hidden="true" focusable="false">
+          <rect width="40" height="40" rx="12" fill="currentColor" />
+          <path d="M11 15h16v9a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7v-9Z" stroke="#fffdf7" stroke-width="2" />
+          <path d="M27 17h2a4 4 0 0 1 0 8h-2M16 8v3m6-3v3" stroke="#fffdf7" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <span>ClearOrder<span class="brand-caption">THE DEMO CAFÉ</span></span>
+      </a>
+      <span class="demo-badge"><span aria-hidden="true"></span>Simulated orders only</span>
+    </header>
+
+    <main id="ordering-app" class="page-width" data-state="REQUEST">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">A LITTLE EASIER. A LITTLE MORE INDEPENDENT.</p>
+        <h1 id="page-title">Your order. <span>Your way.</span></h1>
+        <p class="intro-copy">Speak or type, take your time, and review every detail.<br class="wide-break" /> Nothing is ordered until you say so.</p>
+        <ul class="feature-list" aria-label="Ways to use ClearOrder">
+          <li><span aria-hidden="true">✓</span> English voice &amp; text</li>
+          <li><span aria-hidden="true">✓</span> Keyboard friendly</li>
+          <li><span aria-hidden="true">✓</span> You confirm every order</li>
+        </ul>
+      </section>
+
+      <noscript>
+        <p class="notice">JavaScript is needed to send orders and use speech. Please enable it and reload this page.</p>
+      </noscript>
+
+      <div class="ordering-layout">
+        <div class="conversation-column">
+          <section class="card request-card" aria-labelledby="request-heading">
+            <div class="section-heading">
+              <span class="step" aria-hidden="true">01</span>
+              <div>
+                <p class="eyebrow">LET’S START HERE</p>
+                <h2 id="request-heading">What would you like?</h2>
+              </div>
+            </div>
+
+            <label for="request-text">Your order or reply</label>
+            <p id="request-hint" class="field-hint">For example, “One large coffee without sugar.” You can also type an answer or a correction here.</p>
+            <textarea id="request-text" name="request" rows="3" aria-describedby="request-hint" placeholder="I’d like…" spellcheck="true" autocomplete="off"></textarea>
+
+            <div class="request-actions">
+              <button id="send-button" class="button button-primary" type="button">
+                Send message
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+              </button>
+              <span class="or-label" aria-hidden="true">or</span>
+              <button id="listen-button" class="button button-secondary" type="button" aria-describedby="voice-hint">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="12" rx="3" /><path d="M5 11v1a7 7 0 0 0 14 0v-1m-7 8v3m-3 0h6" /></svg>
+                Speak your order
+              </button>
+            </div>
+            <p id="voice-hint" class="small-copy">Speak in English. Microphone access is optional; you can always type.</p>
+          </section>
+
+          <section class="card response-card" aria-labelledby="response-heading">
+            <div class="section-heading">
+              <span class="step" aria-hidden="true">02</span>
+              <div>
+                <p class="eyebrow">ONE STEP AT A TIME</p>
+                <h2 id="response-heading">Your ordering assistant</h2>
+              </div>
+            </div>
+            <!-- Keep this live region in the DOM. app.js replaces its textContent. -->
+            <p id="response" class="assistant-message" aria-live="polite" aria-atomic="true">Hello! Tell me what you’d like. I’ll help you review your order before you confirm.</p>
+            <div class="playback-actions">
+              <button id="repeat-button" class="button button-quiet" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m11 5-6 5H2v4h3l6 5V5Zm4 3a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" /></svg>
+                Repeat response
+              </button>
+              <button id="stop-speaking-button" class="button button-quiet" type="button" disabled>
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="6" width="12" height="12" rx="1" /></svg>
+                Stop reading
+              </button>
+            </div>
+            <div class="status-line">
+              <span class="status-dot" aria-hidden="true"></span>
+              <p id="status" role="status" aria-live="polite" aria-atomic="true">Ready when you are. Speak or type to begin.</p>
+            </div>
+          </section>
+        </div>
+
+        <section class="card basket-card" aria-labelledby="basket-heading">
+          <div class="section-heading">
+            <span class="step" aria-hidden="true">03</span>
+            <div>
+              <p class="eyebrow">THE FINAL SAY IS YOURS</p>
+              <h2 id="basket-heading">Your basket</h2>
+            </div>
+          </div>
+          <p class="basket-intro">Check your items and total before confirming.</p>
+
+          <!-- app.js replaces these children with one li per API basket line. -->
+          <ul id="basket" class="basket-list" aria-label="Order items">
+            <li class="empty-basket">
+              <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="m9 18 4 23h22l4-23H9Zm8 0L24 7l7 11M19 25v9m10-9v9" /></svg>
+              <p>Your basket is waiting.</p>
+              <span>Add something you’d enjoy.</span>
+            </li>
+          </ul>
+
+          <div class="basket-total">
+            <span>Total</span>
+            <!-- Render total_mad from the API here; do not calculate it in the UI. -->
+            <strong id="total">0.00 MAD</strong>
+          </div>
+          <p id="confirmation-hint" class="small-copy">Review comes first. Confirmation becomes available when your order is ready.</p>
+          <button id="confirm-button" class="button button-primary button-full" type="button" aria-describedby="confirmation-hint simulation-note" disabled>
+            Confirm simulated order
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12 4 4L19 6" /></svg>
+          </button>
+          <div class="basket-actions">
+            <button id="change-button" class="button button-secondary" type="button" disabled>Change order</button>
+            <button id="cancel-button" class="button button-cancel" type="button" disabled>Cancel order</button>
+          </div>
+          <p id="simulation-note" class="simulation-note">Just a demo. No payment, delivery, or real order.</p>
+        </section>
+      </div>
+
+      <aside class="help-note" aria-label="Keyboard help">
+        <span class="help-mark" aria-hidden="true">i</span>
+        <p><strong>At your own pace.</strong> Use Tab to move between controls and Enter or Space to press a button. Every spoken response also appears as text.</p>
+      </aside>
+    </main>
+
+    <footer class="page-width site-footer">
+      <p>ClearOrder · A more accessible everyday</p>
+      <p>Independent prototype. Not connected to Yassir or a merchant.</p>
+    </footer>
+
+    <!-- Owned by Person 1. This is the only production JavaScript entry point. -->
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

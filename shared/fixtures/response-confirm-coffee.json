@@ -1,6 +1,6 @@
 {
   "state": "CONFIRMED",
-  "reply_text": "Commande simulée confirmée. Total : 18 dirhams.",
+  "reply_text": "Simulated order confirmed. Total: 18 dirhams.",
   "basket": [
     {"product_id": "coffee", "quantity": 1, "modifier_ids": ["large", "no_sugar"], "line_total_mad": 18}
   ],

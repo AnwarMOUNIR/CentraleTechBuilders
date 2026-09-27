@@ -1,0 +1,32 @@
+[
+  {
+    "id": "case_1_valid_coffee",
+    "description": "Valid coffee order with modifiers (large and no sugar)",
+    "input": "One large coffee without sugar",
+    "initial_state": "REQUEST",
+    "expected_state": "REVIEW",
+    "expected_total_mad": 18
+  },
+  {
+    "id": "case_2_unknown_product",
+    "description": "Attempt to order an item that is not on the menu",
+    "input": "I would like tacos",
+    "initial_state": "REQUEST",
+    "expected_state": "CLARIFY",
+    "expected_error": "Unknown product_id"
+  },
+  {
+    "id": "case_3_cancellation",
+    "description": "Cancel an order in progress",
+    "input": "Cancel the order",
+    "initial_state": "REVIEW",
+    "expected_state": "CANCELLED"
+  },
+  {
+    "id": "case_4_confirmation",
+    "description": "Explicitly confirm an order in REVIEW state",
+    "input": "Confirm",
+    "initial_state": "REVIEW",
+    "expected_state": "CONFIRMED"
+  }
+]
