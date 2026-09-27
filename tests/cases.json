@@ -1,0 +1,32 @@
+[
+  {
+    "id": "case_1_valid_coffee",
+    "description": "Commande valide d'un café avec modificateurs (grand et sans sucre)",
+    "input": "Un grand café sans sucre",
+    "initial_state": "REQUEST",
+    "expected_state": "REVIEW",
+    "expected_total_mad": 18
+  },
+  {
+    "id": "case_2_unknown_product",
+    "description": "Tentative de commande d'un produit absent du menu",
+    "input": "Je veux un tacos",
+    "initial_state": "REQUEST",
+    "expected_state": "CLARIFY",
+    "expected_error": "Unknown product_id"
+  },
+  {
+    "id": "case_3_cancellation",
+    "description": "Annulation d'une commande en cours",
+    "input": "Annuler la commande",
+    "initial_state": "REVIEW",
+    "expected_state": "CANCELLED"
+  },
+  {
+    "id": "case_4_confirmation",
+    "description": "Confirmation explicite de la commande en état REVIEW",
+    "input": "Confirmer",
+    "initial_state": "REVIEW",
+    "expected_state": "CONFIRMED"
+  }
+]
