@@ -8,7 +8,15 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI
+from dotenv import load_dotenv
 from pydantic import BaseModel, Field
+
+from api.interpreter import interpret as real_interpret
+from api.interpreter_mock import interpret as mock_interpret
+from api.logic import next_step
+from api.privacy import redact
+
+load_dotenv()
 
 ROOT = Path(__file__).resolve().parents[1]
 MENU = json.loads((ROOT / "shared" / "menu.json").read_text(encoding="utf-8"))
@@ -108,7 +116,10 @@ async def health() -> dict:
 
 @app.post("/interpret", response_model=InterpretResponse)
 async def interpret_order(request: InterpretRequest) -> dict:
-    # Mock-first by design. The integration lead will replace the non-mock path
-    # with redact -> interpret -> next_step once all three modules are merged.
-    return _fixture_response(request)
+    redacted_text = redact(request.text)
+    basket = [line.model_dump() for line in request.basket]
+    pending = request.pending.model_dump() if request.pending else None
+    interpreter = mock_interpret if _use_mock() else real_interpret
+    parsed = await interpreter(redacted_text, MENU, basket, request.state, pending)
+    return next_step(parsed, basket, request.state, MENU, pending)
 
