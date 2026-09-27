@@ -10,6 +10,10 @@ from typing import Literal
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
+from api.privacy import redact
+from api.logic import next_step
+from api.interpreter import interpret as real_interpret
+from api.interpreter_mock import interpret as mock_interpret
 ROOT = Path(__file__).resolve().parents[1]
 MENU = json.loads((ROOT / "shared" / "menu.json").read_text(encoding="utf-8"))
 VALID_STATES = ("REQUEST", "CLARIFY", "REVIEW", "CONFIRMED", "CANCELLED")
