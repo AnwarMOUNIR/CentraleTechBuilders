@@ -1,76 +1,83 @@
-# Accessible Ordering
+# ClearOrder
 
-Hackathon prototype for an accessible, voice-or-text ordering flow. A customer chooses from one fixed demo menu, reviews the exact basket and total, can correct it, and must explicitly confirm a **simulated** order.
+## Current integration status
 
-This is an independent prototype. It does not connect to Yassir, a merchant, payments, delivery, or dispatch.
+The live path now defaults to a model-led search → structured draft → separate Qwen verification flow (`api/order_agent.py`). This integration is **work in progress**: the first verified proposal has been exercised, but full multi-turn acceptance of the new architecture is not yet complete. Verification by the same model is a second check, not an independent guarantee. Server-side price, item-ID, and explicit-confirmation checks still apply.
 
-## What works in the integration baseline
+`USE_MOCK_AI=true` selects offline behavior. With live AI, `USE_VERIFIED_AI=false` temporarily selects the older interpreter. Existing offline regression tests explicitly select that older path; passing them does not certify the new live agent. `tests/test_verified_agent.py` checks the new pipeline's server safety boundaries. Earlier rehearsal results below and in `demo/` describe the previous engine unless stated otherwise. Local credentials and conversation databases are excluded from Git.
 
-- `POST /interpret` accepts the frozen request contract.
-- Mock mode returns deterministic responses without an AI key.
-- The browser integration manages the conversation state and renders the API's basket and total.
-- Speech and ordering modules can be merged later without changing the public contract.
+An accessible English voice-and-text ordering demo. Start listening, describe your full order, and the local Ollama model selects items from all sample restaurant menus. ClearOrder validates and reprices the proposed basket, reads it back, and waits for explicit confirmation or refusal. Orders are **simulated**; the app is not connected to a merchant, payment, delivery, or dispatch service.
 
-## Project structure
+## Run on Windows
 
-```text
-shared/       Frozen menu, contract, and integration fixtures
-web/          Browser UI and integration code
-api/          FastAPI shell and later interpreter/logic modules
-tests/        Ordering tests owned by the logic contributor
-demo/         Demo script and evidence owned by the UI contributor
-```
-
-File ownership and the team plan are documented in `accessible_ordering_team_plan.md`. Changes to `shared/` require a short team review after the initial contract commit.
-
-## Run the API
-
-Prerequisites: Python 3.11 or newer.
+Requirements: Python 3.11 or newer, Node.js 20 or newer, and Ollama running locally with the configured model installed. From the project folder, run:
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-$env:USE_MOCK_AI = "true"
-python -m uvicorn api.main:app --reload --port 8000
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+.\start.ps1
 ```
 
-The API is available at `http://localhost:8000`; its interactive documentation is at `http://localhost:8000/docs`.
+The sample configuration uses `qwen3:4b`. If needed, run `ollama pull qwen3:4b` first. The startup script installs dependencies, builds the frontend, and warms the model with `OLLAMA_KEEP_ALIVE=-1` so it remains loaded. Open <http://127.0.0.1:8000> in Chrome or Edge. If PowerShell blocks the script, run `powershell -ExecutionPolicy Bypass -File .\start.ps1`. For offline rule-based ordering, set `USE_MOCK_AI=true` in `.env`. To release GPU memory after the demo, run `ollama stop qwen3:4b`.
 
-## Run the web app
+The API docs are at <http://127.0.0.1:8000/docs>. Stop the server with Ctrl+C.
 
-In another terminal, with Node.js 20 or newer:
+## AI And Voice
 
-```powershell
-npm install
-npm run dev
-```
+The local Ollama model handles interpretation and restaurant selection. With `USE_CLOUD_VOICE=true` and keys configured, Deepgram transcribes audio and ElevenLabs speaks replies. Faster-Whisper (CPU, `base.en`, downloaded on first use) and browser speech provide fallbacks. The microphone loop is half-duplex: it listens after each spoken response finishes, not while the assistant is speaking.
 
-Open the local address printed by Vite. Vite forwards `/interpret` and `/health` to the API on port 8000.
+Press **Start listening**, say your full request, then review the spoken and visible items and total. Say “confirm order” to confirm the simulated order, or “no, cancel” to discard it. To avoid pressing Start listening on later visits, opt in to **Start listening automatically on future visits** once. The browser still controls microphone permission and may require a user gesture. Say “stop listening” or press Escape to stop.
 
-Until the UI contributor adds `web/index.html`, the API can be checked at `/docs` or with the examples in `shared/fixtures/`.
-
-## Environment variables
-
-| Name | Default | Purpose |
+| Variable | Default | Purpose |
 |---|---|---|
-| `USE_MOCK_AI` | `true` | Uses deterministic offline behavior. Set to `false` only after the real interpreter and logic modules are integrated. |
-| `MODEL_API_KEY` | unset | Placeholder name; the interpreter contributor must document the final server-side key name before integration. Never expose it to browser code. |
+| `USE_MOCK_AI` | `false` | Use offline deterministic interpretation instead of Ollama. |
+| `OLLAMA_BASE_URL` | `http://127.0.0.1:11434` | Local Ollama server URL. |
+| `OLLAMA_MODEL` | `qwen3:4b` | Installed local chat model for interpretation and menu selection. |
+| `OLLAMA_KEEP_ALIVE` | `-1` | Keep the model loaded until Ollama stops or unloads it. |
+| `WHISPER_MODEL` | `base.en` | Local English speech-recognition model; downloaded from Hugging Face on first use. |
+| `USE_CLOUD_VOICE` | `true` | Enable cloud speech when credentials exist. Set false for local-only speech. |
+| `DEEPGRAM_API_KEY` | unset | Optional recognition credential, used only when cloud voice is enabled. |
+| `ELEVENLABS_API_KEY` | unset | Optional synthesis credential, used only when cloud voice is enabled. |
+| `ELEVENLABS_VOICE_ID` | `JBFqnCBsd6RMkjVDRZzb` | Optional ElevenLabs voice selection. |
 
-## Integration checks
+## Development And Checks
+
+For a Vite development server with API hot reload, install dependencies once, then run the API and web app in separate PowerShell terminals:
 
 ```powershell
-python -m pytest
+py -3 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+npm.cmd ci
+.\.venv\Scripts\python.exe -m uvicorn api.main:app --reload --port 8000
 ```
 
-Before the demo, run one full order with `USE_MOCK_AI=true` and one with the real model. Also verify the text-only path, keyboard navigation, screen-reader announcements, denied microphone permission, and explicit confirmation.
+In the second terminal:
 
-## Privacy, AI, and demo limits
+```powershell
+npm.cmd run dev
+```
 
-- The browser sends transcript text, not raw audio, to the API.
-- Do not log request bodies or retain transcripts.
-- Model output is treated as untrusted: deterministic code validates IDs and quantities and calculates every price from `shared/menu.json`.
-- Browser speech recognition may use a browser/vendor service; do not claim it always runs locally.
-- The demo supports one shop and a small fixed English menu. English is the only supported interaction language for the hackathon build.
-- Every order is simulated. No payment is taken and no real order is placed.
+Open the Vite URL it prints. Run the checks with:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest
+npm.cmd run build
+.\.venv\Scripts\python.exe scripts/check_services.py
+```
+
+The service diagnostic checks the configured local Ollama model. `demo/script.md` has a short demo flow; `demo/evidence.md` records completed checks and remaining manual acceptance work.
+
+## Data And Limits
+
+- Every order is simulated. No order, payment, or delivery is sent anywhere.
+- The default demo menu uses fixed MAD prices. Other menus and delivery details are sample snapshots; totals exclude delivery and other fees.
+- SQLite FTS5 and parameterized LIKE fallback retrieve at most 24 catalog candidates, plus current basket items. Qwen receives that subset, current basket/pending state, and the last six logged events. Qwen never supplies executable SQL. Catalog tables are seeded from the JSON source on first search in each process; edit the source and restart to update them. This is bounded retrieval, not a production-scale database benchmark.
+- Recommendations use sample prices only; live availability, distance, delivery fees, and service quality are not ranked.
+- Debug transcripts, generated replies, playback requests and basket snapshots are stored locally in ignored `data/catalog.db`. Phone/address patterns are redacted, but this is not comprehensive anonymization: avoid sensitive input. Old events are pruned after seven days when a new event is written. Audio is not saved by this app; configured cloud/browser providers may process it under their own policies.
+- The supported interaction language is English. Automated checks do not replace testing with a microphone and screen reader in the presentation setup.
+
+## Debugging conversations
+
+Open <http://127.0.0.1:8000/conversations> to find recent conversation IDs, then `/conversations/ID` for up to 500 events with timestamps. Each page load starts a fresh ID. Playback events indicate requested speech, not proof the user heard it. SQLite and logs are excluded from Git. `ORDER_DB_PATH` can override the local database path. These unauthenticated debugging endpoints are for localhost only; do not expose this demo publicly.
+
+Quick acceptance test: say “one fish pastilla”, then “make that two”, then “I like it but I am still deciding”. The basket should remain two pastillas at 110 MAD, unconfirmed. Only “confirm order” should confirm it. Also test switching restaurants with an existing basket and saying “repeat”.
 

@@ -19,6 +19,10 @@
 * { box-sizing: border-box; }
 body { margin: 0; }
 button, textarea { font: inherit; }
+select { font: inherit; padding: 12px; width: 100%; margin-block: 8px; }
+details { margin-top: 16px; }
+summary { cursor: pointer; padding: 8px; }
+#read-aloud { width: 20px; height: 20px; vertical-align: middle; margin-block: 16px; }
 button { cursor: pointer; }
 svg { display: block; flex: 0 0 auto; }
 h1, h2, p { margin: 0; }

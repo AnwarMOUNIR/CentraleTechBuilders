@@ -18,7 +18,7 @@
           <path d="M11 15h16v9a7 7 0 0 1-7 7h-2a7 7 0 0 1-7-7v-9Z" stroke="#fffdf7" stroke-width="2" />
           <path d="M27 17h2a4 4 0 0 1 0 8h-2M16 8v3m6-3v3" stroke="#fffdf7" stroke-width="2" stroke-linecap="round" />
         </svg>
-        <span>ClearOrder<span class="brand-caption">THE DEMO CAFÉ</span></span>
+        <span>ClearOrder<span class="brand-caption">THE DEMO CAFE</span></span>
       </a>
       <span class="demo-badge"><span aria-hidden="true"></span>Simulated orders only</span>
     </header>
@@ -51,7 +51,7 @@
             </div>
 
             <label for="request-text">Your order or reply</label>
-            <p id="request-hint" class="field-hint">For example, “One large coffee without sugar.” You can also type an answer or a correction here.</p>
+            <p id="request-hint" class="field-hint">Start listening and say anything you would like to order. ClearOrder will read back what it found and the total, then wait for your confirmation. You can also type. Ctrl+Enter sends a typed message.</p>
             <textarea id="request-text" name="request" rows="3" aria-describedby="request-hint" placeholder="I’d like…" spellcheck="true" autocomplete="off"></textarea>
 
             <div class="request-actions">
@@ -62,10 +62,20 @@
               <span class="or-label" aria-hidden="true">or</span>
               <button id="listen-button" class="button button-secondary" type="button" aria-describedby="voice-hint">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="12" rx="3" /><path d="M5 11v1a7 7 0 0 0 14 0v-1m-7 8v3m-3 0h6" /></svg>
-                Speak your order
+                Start listening
               </button>
             </div>
-            <p id="voice-hint" class="small-copy">Speak in English. Microphone access is optional; you can always type.</p>
+            <p id="voice-hint" class="small-copy">English voice ordering. Allow microphone access, then say your whole order naturally. The assistant reads the proposed items and total; say “confirm order” or “no, cancel”. Browser speech recognition may use your browser's speech service.</p>
+            <label for="auto-listen"><input id="auto-listen" type="checkbox" aria-describedby="auto-listen-hint" /> Start listening automatically on future visits</label>
+            <p id="auto-listen-hint" class="small-copy">Opt in once to start the voice session when you return. Your browser still controls microphone permission.</p>
+            <p id="transcript" class="small-copy" aria-live="off"></p>
+            <label><input id="read-aloud" type="checkbox" /> Read typed replies aloud (leave off when using a screen reader)</label>
+            <p id="mode" class="small-copy"></p>
+            <div class="restaurant-info-box" style="margin-block: 12px; padding: 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+              <strong id="restaurant-name">All partner restaurants available</strong>
+              <p id="restaurant-note" class="small-copy" style="margin-top: 4px;">Say what you'd like to order (burgers, tacos, pizza, Moroccan pastilla, mezze, or coffee). ClearOrder matches your order to the right restaurant automatically.</p>
+            </div>
+            <details><summary>Browse all partner restaurants and menus</summary><ul id="menu-list"></ul></details>
           </section>
 
           <section class="card response-card" aria-labelledby="response-heading">
@@ -128,7 +138,7 @@
             <button id="change-button" class="button button-secondary" type="button" disabled>Change order</button>
             <button id="cancel-button" class="button button-cancel" type="button" disabled>Cancel order</button>
           </div>
-          <p id="simulation-note" class="simulation-note">Just a demo. No payment, delivery, or real order.</p>
+          <p id="simulation-note" class="simulation-note">Just a demo. No payment, delivery, or real order. Debug transcripts are saved locally for seven days with phone/address redaction. Do not share sensitive information. Audio is not saved by this app. Cloud speech providers process audio when enabled.</p>
         </section>
       </div>
 

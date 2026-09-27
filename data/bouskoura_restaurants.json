@@ -1,20 +1,20 @@
 {
   "schema_version": "1.0",
-  "dataset_id": "bouskoura_restaurant_seed_2026_09_27",
+  "dataset_id": "english_demo_restaurant_seed_2026_09_27",
   "generated_at": "2026-09-27",
-  "locale": "fr-MA",
+  "locale": "en-MA",
   "currency": "MAD",
   "service_area": {
     "city": "Bouskoura",
     "region": "Casablanca-Settat",
     "country": "Morocco"
   },
-  "usage": "Demo and prototyping seed data only. Verify restaurant availability, prices, fees and delivery estimates with the provider before any real use.",
+  "usage": "Demo only. Restaurant display names are fictional English names. Menu, price and delivery data are illustrative public-listing snapshots, not live offers or partnerships.",
   "delivery_time_policy": "Delivery estimates are point-in-time platform observations and depend on the exact address, restaurant status, demand and traffic. null means the public listing did not expose an estimate without a delivery address.",
   "restaurants": [
     {
       "id": "lilas_food_bouskoura",
-      "name": "LILAS FOOD",
+      "name": "Lilac Kitchen",
       "area": "Bouskoura",
       "cuisines": ["burger", "pizza", "pasta", "sandwich", "tacos", "juice"],
       "ordering_channel": "Yassir Food",
@@ -53,7 +53,7 @@
     },
     {
       "id": "lecheria_bouskoura",
-      "name": "Lecheria Bouskoura",
+      "name": "Green Spoon Cafe",
       "area": "Bouskoura et Ville Verte",
       "cuisines": ["moroccan", "burger", "pizza", "pasta", "tacos", "cafe"],
       "ordering_channel": "Restaurant digital menu",
@@ -95,7 +95,7 @@
     },
     {
       "id": "la_grignotiere_bouskoura",
-      "name": "La Grignotière By La Grillardière",
+      "name": "Cornerstone Grill",
       "area": "Bouskoura",
       "cuisines": ["sandwich", "moroccan", "grill", "bakery", "juice"],
       "ordering_channel": "Glovo",
@@ -137,7 +137,7 @@
     },
     {
       "id": "le_petit_italien_bouskoura",
-      "name": "Le petit Italien Bouskoura",
+      "name": "Little Olive Kitchen",
       "area": "Bouskoura",
       "cuisines": ["italian", "pizza", "salad", "chicken", "juice"],
       "ordering_channel": "Yassir Food",
@@ -176,7 +176,7 @@
     },
     {
       "id": "baba_turc_bouskoura",
-      "name": "Baba Turc Bouskoura",
+      "name": "Cedar Spice House",
       "area": "One Hill, Promenade du Golf, Bouskoura",
       "cuisines": ["turkish", "steakhouse", "mezze"],
       "ordering_channel": "Restaurant website",
@@ -216,7 +216,7 @@
     },
     {
       "id": "yony_bouskoura",
-      "name": "YONY by Yo Ti Tam",
+      "name": "Orange Grove Kitchen",
       "area": "Bouskoura",
       "cuisines": ["pizza", "burger", "sandwich", "salad", "juice"],
       "ordering_channel": "Glovo",

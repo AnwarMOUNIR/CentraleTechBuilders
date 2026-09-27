@@ -1,4 +1,5 @@
 import asyncio
+import httpx
 
 from api.interpreter import interpret as real_interpret
 from api.interpreter_mock import interpret as mock_interpret
@@ -48,8 +49,13 @@ def test_mock_answers_pending_quantity():
     assert result["quantity"] == 2
 
 
-def test_real_interpreter_fails_closed_without_key(monkeypatch):
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+def test_local_interpreter_fails_closed_when_ollama_is_unavailable(monkeypatch):
+    from api import interpreter
+    class OfflineClient:
+        async def __aenter__(self): return self
+        async def __aexit__(self, *args): pass
+        async def post(self, *args, **kwargs): raise httpx.ConnectError('offline')
+    monkeypatch.setattr(interpreter.httpx, 'AsyncClient', lambda **kwargs: OfflineClient())
     result = run(real_interpret("One coffee", MENU, [], "REQUEST", None))
     assert result == {
         "intent": "unknown",
