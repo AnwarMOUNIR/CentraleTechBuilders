@@ -34,10 +34,10 @@ def next_step(
         if not isinstance(quantity, int) or isinstance(quantity, bool) or quantity <= 0 or quantity > 99:
             return {
                 "state": "CLARIFY",
-                "reply_text": "Quantité invalide. Veuillez préciser un nombre entre 1 et 99.",
+                "reply_text": "Invalid quantity. Please enter a number from 1 to 99.",
                 "basket": new_basket,
                 "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                "question": "Quantité invalide",
+                "question": "What quantity would you like?",
                 "pending": pending,
                 "error": "Invalid quantity"
             }
@@ -63,10 +63,10 @@ def next_step(
             if modifiers_requested and not answer_modifiers:
                 return {
                     "state": "CLARIFY",
-                    "reply_text": "Je n'ai pas compris votre choix. Veuillez préciser une option.",
+                    "reply_text": "I did not understand your choice. Please specify an option.",
                     "basket": new_basket,
                     "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                    "question": "Clarification requise",
+                    "question": "Which option would you like?",
                     "pending": pending,
                     "error": "Unclear pending answer"
                 }
@@ -75,10 +75,10 @@ def next_step(
             if product is None:
                 return {
                     "state": "CLARIFY",
-                    "reply_text": "Produit inconnu. Veuillez préciser un article du menu.",
+                    "reply_text": "Unknown product. Please choose an item from the menu.",
                     "basket": new_basket,
                     "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                    "question": "Produit inconnu",
+                    "question": "Which menu item would you like?",
                     "pending": pending,
                     "error": "Unknown product_id"
                 }
@@ -86,10 +86,10 @@ def next_step(
             if resolved_quantity is None:
                 return {
                     "state": "CLARIFY",
-                    "reply_text": "Veuillez préciser une quantité.",
+                    "reply_text": "Please specify a quantity.",
                     "basket": new_basket,
                     "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                    "question": "Quantité requise",
+                    "question": "What quantity would you like?",
                     "pending": pending,
                     "error": "Unclear pending answer"
                 }
@@ -101,10 +101,10 @@ def next_step(
             ):
                 return {
                     "state": "CLARIFY",
-                    "reply_text": "Quantité invalide. Veuillez préciser un nombre entre 1 et 99.",
+                    "reply_text": "Invalid quantity. Please enter a number from 1 to 99.",
                     "basket": new_basket,
                     "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                    "question": "Quantité invalide",
+                    "question": "What quantity would you like?",
                     "pending": pending,
                     "error": "Invalid quantity"
                 }
@@ -114,10 +114,10 @@ def next_step(
                 if mid not in mod_dict:
                     return {
                         "state": "CLARIFY",
-                        "reply_text": f"Option inconnue '{mid}'. Veuillez réessayer.",
+                        "reply_text": f"Unknown option '{mid}'. Please try again.",
                         "basket": new_basket,
                         "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                        "question": f"Modificateur inconnu: {mid}",
+                        "question": f"Which menu option did you mean instead of '{mid}'?",
                         "pending": pending,
                         "error": "Unknown modifier_id"
                     }
@@ -135,7 +135,7 @@ def next_step(
             total_mad = sum(item["line_total_mad"] for item in new_basket)
             return {
                 "state": "REVIEW",
-                "reply_text": f"Ajouté : {resolved_quantity} {product['name']}, {total_mad} dirhams au total. Confirmer, modifier ou annuler ?",
+                "reply_text": f"Added {resolved_quantity} {product['name']}. The total is {total_mad} dirhams. Confirm, change, or cancel?",
                 "basket": new_basket,
                 "total_mad": total_mad,
                 "question": None,
@@ -146,10 +146,10 @@ def next_step(
         if intent == "unknown" or not (quantity_requested or product_requested or modifiers_requested):
             return {
                 "state": "CLARIFY",
-                "reply_text": "Je n'ai pas compris votre réponse. Veuillez préciser le choix demandé.",
+                "reply_text": "I did not understand your answer. Please specify the requested choice.",
                 "basket": new_basket,
                 "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                "question": "Clarification requise",
+                "question": "Could you clarify your choice?",
                 "pending": pending,
                 "error": "Unclear pending answer"
             }
@@ -157,7 +157,7 @@ def next_step(
     if intent == "cancel":
         return {
             "state": "CANCELLED",
-            "reply_text": "Commande annulée.",
+            "reply_text": "Order cancelled.",
             "basket": new_basket,
             "total_mad": sum(item["line_total_mad"] for item in new_basket),
             "question": None,
@@ -169,7 +169,7 @@ def next_step(
         total = sum(item["line_total_mad"] for item in new_basket)
         return {
             "state": state,
-            "reply_text": f"Votre panier totalise {total} dirhams.",
+            "reply_text": f"Your basket total is {total} dirhams.",
             "basket": new_basket,
             "total_mad": total,
             "question": None,
@@ -181,7 +181,7 @@ def next_step(
         if state != "REVIEW":
             return {
                 "state": state,
-                "reply_text": "Rien à confirmer.",
+                "reply_text": "There is nothing to confirm.",
                 "basket": new_basket,
                 "total_mad": sum(item["line_total_mad"] for item in new_basket),
                 "question": None,
@@ -191,7 +191,7 @@ def next_step(
         if not new_basket:
             return {
                 "state": state,
-                "reply_text": "Panier vide.",
+                "reply_text": "Your basket is empty.",
                 "basket": new_basket,
                 "total_mad": 0,
                 "question": None,
@@ -201,7 +201,7 @@ def next_step(
         total = sum(item["line_total_mad"] for item in new_basket)
         return {
             "state": "CONFIRMED",
-            "reply_text": "Commande confirmée !",
+            "reply_text": "Order confirmed!",
             "basket": new_basket,
             "total_mad": total,
             "question": None,
@@ -209,15 +209,15 @@ def next_step(
             "error": None
         }
 
-    # Correction change retournant REVIEW
+    # Apply the requested correction and return to REVIEW.
     if intent == "change":
         if not new_basket:
             return {
                 "state": "CLARIFY",
-                "reply_text": "Le panier est vide. Quel article souhaitez-vous modifier ?",
+                "reply_text": "Your basket is empty. Which item would you like to change?",
                 "basket": new_basket,
                 "total_mad": 0,
-                "question": "Aucun article à modifier",
+                "question": "Which item would you like to change?",
                 "pending": None,
                 "error": "Cannot change empty basket"
             }
@@ -230,10 +230,10 @@ def next_step(
         if prod is None:
             return {
                 "state": "CLARIFY",
-                "reply_text": "Produit inconnu. Veuillez préciser un article du menu.",
+                "reply_text": "Unknown product. Please choose an item from the menu.",
                 "basket": new_basket,
                 "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                "question": "Produit inconnu",
+                "question": "Which menu item would you like?",
                 "pending": None,
                 "error": "Unknown product_id"
             }
@@ -243,10 +243,10 @@ def next_step(
             if mid not in mod_dict:
                 return {
                     "state": "CLARIFY",
-                    "reply_text": f"Option inconnue '{mid}'. Veuillez réessayer.",
+                    "reply_text": f"Unknown option '{mid}'. Please try again.",
                     "basket": new_basket,
                     "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                    "question": f"Modificateur inconnu: {mid}",
+                    "question": f"Which menu option did you mean instead of '{mid}'?",
                     "pending": None,
                     "error": "Unknown modifier_id"
                 }
@@ -262,7 +262,7 @@ def next_step(
         total_mad = sum(item["line_total_mad"] for item in new_basket)
         return {
             "state": "REVIEW",
-            "reply_text": "Modification effectuée.",
+            "reply_text": "Your change has been applied.",
             "basket": new_basket,
             "total_mad": total_mad,
             "question": None,
@@ -274,10 +274,10 @@ def next_step(
         if product_id not in menu_dict:
             return {
                 "state": "CLARIFY",
-                "reply_text": "Produit inconnu.",
+                "reply_text": "Unknown product.",
                 "basket": new_basket,
                 "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                "question": "Produit inconnu",
+                "question": "Which menu item would you like?",
                 "pending": None,
                 "error": "Unknown product_id"
             }
@@ -289,13 +289,30 @@ def next_step(
             if mid not in mod_dict:
                 return {
                     "state": "CLARIFY",
-                    "reply_text": f"Modificateur inconnu {mid}",
+                    "reply_text": f"Unknown option '{mid}'. Please choose an available menu option.",
                     "basket": new_basket,
                     "total_mad": sum(item["line_total_mad"] for item in new_basket),
-                    "question": f"Modificateur inconnu: {mid}",
+                    "question": f"Which menu option would you like?",
                     "pending": None,
                     "error": "Unknown modifier_id"
                 }
+
+        if quantity is None:
+            missing_quantity = {
+                "product_id": product_id,
+                "quantity": None,
+                "modifier_ids": modifier_ids,
+                "missing_field": "quantity",
+            }
+            return {
+                "state": "CLARIFY",
+                "reply_text": f"How many {product['name']} would you like?",
+                "basket": new_basket,
+                "total_mad": sum(item["line_total_mad"] for item in new_basket),
+                "question": "What quantity would you like?",
+                "pending": missing_quantity,
+                "error": None,
+            }
 
         base_price = product["base_price_mad"]
         mod_delta = sum(mod_dict[mid]["delta_mad"] for mid in modifier_ids if mid in mod_dict)
@@ -312,7 +329,7 @@ def next_step(
 
         return {
             "state": "REVIEW",
-            "reply_text": "Ajouté avec succès.",
+            "reply_text": "Item added successfully.",
             "basket": new_basket,
             "total_mad": total_mad,
             "question": None,
@@ -322,10 +339,10 @@ def next_step(
 
     return {
         "state": "CLARIFY",
-        "reply_text": "Intention non comprise.",
+        "reply_text": "I did not understand the request.",
         "basket": new_basket,
         "total_mad": sum(item["line_total_mad"] for item in new_basket),
-        "question": "Clarification requise",
+        "question": "Could you clarify what you would like to do?",
         "pending": pending,
         "error": "Unclear intent"
     }
