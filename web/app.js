@@ -24,6 +24,10 @@ async function loadSpeechAdapter() {
   const availability = speech.speechAvailable();
   const listenButton = byId("listen-button");
   if (listenButton) listenButton.disabled = !availability.listen;
+  const repeatButton = byId("repeat-button");
+  if (repeatButton) repeatButton.disabled = !availability.speak;
+  const stopButton = byId("stop-speaking-button");
+  if (stopButton) stopButton.disabled = !availability.speak;
 }
 
 function setStatus(message) {
@@ -102,6 +106,10 @@ function bindEvents() {
     }
   });
   byId("repeat-button")?.addEventListener("click", () => speech.speak(state.lastReply));
+  byId("stop-speaking-button")?.addEventListener("click", () => {
+    speech.stopSpeaking();
+    setStatus("Speech playback stopped.");
+  });
   byId("confirm-button")?.addEventListener("click", () => submit("confirm"));
   byId("change-button")?.addEventListener("click", () => {
     input?.focus();
