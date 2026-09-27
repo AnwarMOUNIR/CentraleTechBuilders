@@ -71,6 +71,6 @@ Before the demo, run one full order with `USE_MOCK_AI=true` and one with the rea
 - Do not log request bodies or retain transcripts.
 - Model output is treated as untrusted: deterministic code validates IDs and quantities and calculates every price from `shared/menu.json`.
 - Browser speech recognition may use a browser/vendor service; do not claim it always runs locally.
-- The demo supports one shop and a small fixed French menu. Darija phrases are optional.
+- The demo supports one shop and a small fixed English menu. English is the only supported interaction language for the hackathon build.
 - Every order is simulated. No payment is taken and no real order is placed.
 

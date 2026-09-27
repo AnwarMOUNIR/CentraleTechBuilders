@@ -12,7 +12,7 @@ These are open integration tasks for Person 1, not behavior provided by the HTML
 
 - `app.js` never enables Confirm/Change/Cancel; apply the state table below. The HTML starts them disabled deliberately, so a complete order cannot yet be confirmed through this page.
 - `app.js` appends a total row inside `basket` instead of updating `total`; update the dedicated total element and remove the duplicate total row.
-- `app.js` uses French status/command strings and `api/main.py` recognizes French coffee phrases and returns French replies. English orders are not yet supported end to end. Translate the controller and coordinate English fixtures/backend responses with Persons 4 and 5.
+- The integration lead has aligned `app.js`, the mock API, menu labels, contracts, and fixtures to English. Persons 3, 4, and 5 must preserve English responses during integration.
 - The baseline submits on every Enter inside the textarea, auto-submits microphone transcripts, and does not guard concurrent requests. Align it with the event and request guidance below.
 - Stop reading is not bound, speech availability does not disable Repeat, and basket labels are raw IDs. Wire the extra controls and resolve labels from the shared menu.
 - Clarification, change, cancellation, and quantity-correction behavior still require the ordering implementation. The 90-second script is a target acceptance flow, not a verified capability of the current baseline.

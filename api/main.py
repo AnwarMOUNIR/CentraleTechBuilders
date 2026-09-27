@@ -59,10 +59,10 @@ def _fixture_response(request: InterpretRequest) -> dict:
     basket = [line.model_dump() for line in request.basket]
     total = sum(line["line_total_mad"] for line in basket)
 
-    if request.state == "REVIEW" and normalized in {"confirmer", "confirme", "confirm", "oui, confirmer"}:
+    if request.state == "REVIEW" and normalized in {"confirm", "confirm order", "yes, confirm"}:
         return {
             "state": "CONFIRMED",
-            "reply_text": f"Commande simulée confirmée. Total : {total} dirhams.",
+            "reply_text": f"Simulated order confirmed. Total: {total} dirhams.",
             "basket": basket,
             "total_mad": total,
             "question": None,
@@ -70,19 +70,19 @@ def _fixture_response(request: InterpretRequest) -> dict:
             "error": None,
         }
 
-    if "café" in normalized or "cafe" in normalized:
+    if "coffee" in normalized:
         modifiers = []
-        if "grand" in normalized:
+        if "large" in normalized:
             modifiers.append("large")
         else:
             modifiers.append("small")
-        if "sans sucre" in normalized:
+        if "without sugar" in normalized or "no sugar" in normalized:
             modifiers.append("no_sugar")
         line_total = 12 + (6 if "large" in modifiers else 0)
         basket = [{"product_id": "coffee", "quantity": 1, "modifier_ids": modifiers, "line_total_mad": line_total}]
         return {
             "state": "REVIEW",
-            "reply_text": f"Café ajouté, {line_total} dirhams. Confirmer, modifier ou annuler ?",
+            "reply_text": f"Coffee added, {line_total} dirhams. Confirm, change, or cancel?",
             "basket": basket,
             "total_mad": line_total,
             "question": None,
@@ -92,10 +92,10 @@ def _fixture_response(request: InterpretRequest) -> dict:
 
     return {
         "state": "CLARIFY",
-        "reply_text": "Je n'ai pas compris. Veuillez choisir un article du menu.",
+        "reply_text": "I didn't understand that. Please choose an item from the menu.",
         "basket": basket,
         "total_mad": total,
-        "question": "Quel article souhaitez-vous ?",
+        "question": "Which item would you like?",
         "pending": request.pending.model_dump() if request.pending else None,
         "error": None,
     }

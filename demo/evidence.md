@@ -2,7 +2,7 @@
 
 ## Scope
 
-English UI in `web/index.html` and `web/style.css`. The repository already contains Person 1's French integration baseline (`23db49e`), preserved by this change. Missing ordering modules are empty placeholders; missing speech adapters expose safe unavailable fallbacks. Full ordering and assistive-technology behavior are **not yet verified**. Known controller/backend mismatches are recorded at the top of `demo/integration.md`; in particular, review buttons remain disabled until the controller updates their state.
+English UI in `web/index.html` and `web/style.css`. The integration baseline has now been aligned to English. Full ordering and assistive-technology behavior are **not yet verified**. Known controller/backend gaps are recorded in `demo/integration.md`; in particular, review buttons remain disabled until the controller updates their state.
 
 ## Checks performed
 
