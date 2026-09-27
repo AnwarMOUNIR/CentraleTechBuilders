@@ -1,0 +1,70 @@
+[
+  {
+    "id": "coffee",
+    "name": "Café",
+    "base_price_mad": 12,
+    "modifiers": [
+      {"id": "small", "label": "Petit", "delta_mad": 0},
+      {"id": "large", "label": "Grand", "delta_mad": 6},
+      {"id": "no_sugar", "label": "Sans sucre", "delta_mad": 0},
+      {"id": "extra_sugar", "label": "Sucre supplémentaire", "delta_mad": 0}
+    ]
+  },
+  {
+    "id": "mint_tea",
+    "name": "Thé à la menthe",
+    "base_price_mad": 14,
+    "modifiers": [
+      {"id": "no_sugar", "label": "Sans sucre", "delta_mad": 0},
+      {"id": "extra_mint", "label": "Menthe supplémentaire", "delta_mad": 2}
+    ]
+  },
+  {
+    "id": "orange_juice",
+    "name": "Jus d'orange",
+    "base_price_mad": 20,
+    "modifiers": [
+      {"id": "no_ice", "label": "Sans glaçons", "delta_mad": 0}
+    ]
+  },
+  {
+    "id": "water",
+    "name": "Eau minérale",
+    "base_price_mad": 8,
+    "modifiers": [
+      {"id": "sparkling", "label": "Gazeuse", "delta_mad": 2}
+    ]
+  },
+  {
+    "id": "croissant",
+    "name": "Croissant",
+    "base_price_mad": 10,
+    "modifiers": []
+  },
+  {
+    "id": "cheese_sandwich",
+    "name": "Sandwich au fromage",
+    "base_price_mad": 28,
+    "modifiers": [
+      {"id": "no_tomato", "label": "Sans tomate", "delta_mad": 0},
+      {"id": "extra_cheese", "label": "Fromage supplémentaire", "delta_mad": 5}
+    ]
+  },
+  {
+    "id": "chicken_sandwich",
+    "name": "Sandwich au poulet",
+    "base_price_mad": 35,
+    "modifiers": [
+      {"id": "no_tomato", "label": "Sans tomate", "delta_mad": 0},
+      {"id": "spicy", "label": "Épicé", "delta_mad": 0}
+    ]
+  },
+  {
+    "id": "fruit_salad",
+    "name": "Salade de fruits",
+    "base_price_mad": 24,
+    "modifiers": [
+      {"id": "no_honey", "label": "Sans miel", "delta_mad": 0}
+    ]
+  }
+]

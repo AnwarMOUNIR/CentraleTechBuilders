@@ -1,0 +1,11 @@
+{
+  "state": "CONFIRMED",
+  "reply_text": "Commande simulée confirmée. Total : 18 dirhams.",
+  "basket": [
+    {"product_id": "coffee", "quantity": 1, "modifier_ids": ["large", "no_sugar"], "line_total_mad": 18}
+  ],
+  "total_mad": 18,
+  "question": null,
+  "pending": null,
+  "error": null
+}

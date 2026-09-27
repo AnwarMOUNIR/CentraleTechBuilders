@@ -1,0 +1,11 @@
+{
+  "state": "REVIEW",
+  "reply_text": "Un grand café sans sucre, 18 dirhams. Confirmer, modifier ou annuler ?",
+  "basket": [
+    {"product_id": "coffee", "quantity": 1, "modifier_ids": ["large", "no_sugar"], "line_total_mad": 18}
+  ],
+  "total_mad": 18,
+  "question": null,
+  "pending": null,
+  "error": null
+}
